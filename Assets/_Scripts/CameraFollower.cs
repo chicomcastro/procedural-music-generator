@@ -17,7 +17,7 @@ public class CameraFollower : MonoBehaviour {
 
 	void Start ()
 	{
-		initialPos = transform.position;
+		InitializeCamera();
 	}
 
 	void FixedUpdate()
@@ -51,6 +51,11 @@ public class CameraFollower : MonoBehaviour {
 		transform.Translate(move*Time.fixedDeltaTime, Space.World);		
 	}
 
+	public void InitializeCamera()
+	{
+		initialPos = transform.position;
+	}
+
 	void Move()
 	{
 		Vector3 aux = transform.position;
@@ -65,10 +70,4 @@ public class CameraFollower : MonoBehaviour {
 	{
 		shouldMove = true;
 	}
-
-	//void OnTriggerEnter2D (Collider2D other)
-	//{
-	//	shouldMove = false;
-	//}
-
 }

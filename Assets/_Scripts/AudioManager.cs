@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 public class AudioManager : MonoBehaviour {
 
@@ -9,6 +10,8 @@ public class AudioManager : MonoBehaviour {
 	public List<Note> notes = new List<Note>();
 	private List<Note> scale = new List<Note>();
 	private float time;
+
+	private VisualConstructor vs;
 
 	const int NOTE = 0;
 	const int PAUSE = 1;
@@ -28,7 +31,7 @@ public class AudioManager : MonoBehaviour {
 	// Our reference to an audio manager
 	public static AudioManager instance;
 
-	void Awake() {
+	private void Awake() {
 
 		// Is instance is empty, fill it up with this gameobject and others like him will be destroyed
 		if (instance == null)
@@ -44,9 +47,77 @@ public class AudioManager : MonoBehaviour {
 		notes = Mapper.MapAudioClips(audioSamples);
 
 		scale = Mapper.GetScale(notes, new string[] { "C", "D", "E", "G", "A" });
+
+		vs = FindObjectOfType<VisualConstructor>();
 	}
 
-	public void SetBPM ()
+	public void GenerateMelody () // When Play button is hitted, this method is called
+	{
+		noiseMap = PerlinNoise.GenerateHeights(size, size, seed, scale.Count-1, octaves, persistance, lacunarity);
+		
+		int[] aux = new int[noiseMap.GetLength(0)];
+
+		for (int i = 0; i < aux.Length; i++)
+		{
+			aux[i] = noiseMap[i, NOTE];
+		}
+
+		// Truncate music tempo
+		// Divide music (structuration)
+		// Get harmony
+		// StartCoroutine (GenerateHarmony())
+
+		int[] melodyHeights = ConvertNoiseMapIntoScaleInfo(aux);
+		
+		vs.ApplyMelody(melodyHeights);
+	}
+
+	public void Stop()
+	{
+		FindObjectOfType<CameraFollower>().InitializeCamera();
+	}
+
+	// public void Pause()
+
+	private int[] ConvertNoiseMapIntoScaleInfo(int[] aux)
+	{
+		Note[] melody = new Note[aux.Length];
+
+		for (int i = 0; i < aux.Length; i++)
+		{
+			melody[i] = scale[aux[i]];
+		}
+
+		int[] result = new int[aux.Length];
+		int j = 0;
+
+		foreach (Note n in melody)
+		{
+			result[j] = notes.FindIndex(note => note == n);
+			j++;
+		}
+
+		return result;
+	}
+
+	void OnValidate()
+	{
+		if (bpm < 60)
+		{
+			bpm = 60;
+		}
+		if (lacunarity < 1)
+		{
+			lacunarity = 1;
+		}
+		if (octaves < 0)
+		{
+			octaves = 0;
+		}
+	}
+	
+	#region Encapsuling stuff
+	public void SetBPM()
 	{
 		int result;
 		if (int.TryParse(BPMinput.text, out result))
@@ -78,74 +149,7 @@ public class AudioManager : MonoBehaviour {
 	{
 		return size;
 	}
-
-	public void GenerateMelody ()
-	{
-		noiseMap = PerlinNoise.GenerateHeights(size, size, seed, scale.Count-1, octaves, persistance, lacunarity);
-		
-		int[] aux = new int[noiseMap.GetLength(0)];
-
-		for (int i = 0; i < aux.Length; i++)
-		{
-			aux[i] = noiseMap[i, NOTE];
-		}
-
-		// Truncate music tempo
-		// Divide music (structuration)
-		// Get harmony
-		// StartCoroutine (GenerateHarmony())
-
-		int[] melodyHeights = ConvertNoiseMapIntoScaleInfo(aux);
-		
-		FindObjectOfType<VisualConstructor>().ApplyMelody(melodyHeights);
-	}
-
-	private int[] ConvertNoiseMapIntoScaleInfo(int[] aux)
-	{
-		Note[] melody = new Note[aux.Length];
-
-		for (int i = 0; i < aux.Length; i++)
-		{
-			melody[i] = scale[aux[i]];
-		}
-
-		int[] result = new int[aux.Length];
-		int j = 0;
-
-		foreach (Note n in melody)
-		{
-			result[j] = notes.FindIndex(note => note == n);
-			j++;
-		}
-
-		return result;
-	}
-
-	public void Play(AudioClip audioClip)
-	{
-		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-		//audioSource.volume = volume;
-		audioSource.clip = audioClip;
-		audioSource.Play();
-		Destroy(audioSource, 1.0f);
-		// Colocar um fade in
-	}
-
-	void OnValidate()
-	{
-		if (bpm < 40)
-		{
-			bpm = 40;
-		}
-		if (lacunarity < 1)
-		{
-			lacunarity = 1;
-		}
-		if (octaves < 0)
-		{
-			octaves = 0;
-		}
-	}
+	#endregion
 }
 /* Prioridades:
  * - Colocar câmera para seguir

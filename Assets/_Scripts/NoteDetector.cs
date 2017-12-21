@@ -4,7 +4,7 @@ public class NoteDetector : MonoBehaviour
 {
 	AudioManager am;
 
-	void Start ()
+	void Start()
 	{
 		am = FindObjectOfType<AudioManager>();
 	}
@@ -17,8 +17,19 @@ public class NoteDetector : MonoBehaviour
 
 		if (nid.info.isActive)
 		{
-			print("Teste");
-			am.Play(nid.info.note.clip);
+			nid.Play();
+		}
+	}
+
+	void OnTriggerExit2D(Collider2D other)
+	{
+		NoteId nid = other.gameObject.GetComponent<NoteId>();
+		if (nid == null)
+			return;
+
+		if (nid.info.isActive)
+		{
+			nid.TurnOff();
 		}
 	}
 }

@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class VisualConstructor : MonoBehaviour {
 
 	public GameObject spotObject;
 	public Canvas canvas;
-	public GameObject cameraSensor;
+	public GameObject cameraSensorPrefab;
 	public GameObject branchCanvas;
 	public AudioManager audioManager;
+
+	public Vector2 spacement;
+	public Transform gridParent;
 
 	private List<Branch> branch = new List<Branch>();
 
@@ -17,6 +21,8 @@ public class VisualConstructor : MonoBehaviour {
 	private float imageHeight;
 
 	private Branch currentBranch;
+
+	private GameObject currentCameraSensor;
 
 	void Start()
 	{
@@ -34,8 +40,6 @@ public class VisualConstructor : MonoBehaviour {
 		CreateNewBranch();
 
 		SpawnNewTime(currentBranch);
-
-		SpawnSensor();
 	}
 
 	public void CreateNewBranch()
@@ -54,12 +58,11 @@ public class VisualConstructor : MonoBehaviour {
 			currentBranch.tempo.Add(new Tempo());
 
 			Tempo currentTempo = currentBranch.tempo[i + actualTempoQuant];
-
 			currentTempo.note = new List<VisualNote>();
 
 			for (int j = 0; j < amplitude; j++)
 			{
-				GameObject newGO = Instantiate(spotObject, new Vector3(imageLenght * i - 8f, imageHeight * j - 5f), transform.rotation);
+				GameObject newGO = Instantiate(spotObject, new Vector3((imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j), transform.rotation, gridParent);
 				currentTempo.note.Add(new VisualNote(newGO, audioManager.notes[j]));
 				newGO.GetComponent<NoteId>().info = currentTempo.note[currentTempo.note.Count - 1];
 			}
@@ -72,39 +75,23 @@ public class VisualConstructor : MonoBehaviour {
 		{
 			VisualNote noteToActivate = currentBranch.tempo[i].note[notesHeights[i]];
 			noteToActivate.obj.GetComponent<NoteId>().Activate();
-			print(noteToActivate.note.name);
 		}
 	}
 
-	public void TurnOn (int i)
+	public void SpawnSensor()
 	{
+		if (currentCameraSensor != null)
+			Destroy(currentCameraSensor);
 
+		GameObject aux = Instantiate(cameraSensorPrefab, transform.position, transform.rotation);
+		currentCameraSensor = aux;
+
+		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageHeight / (60f / audioManager.bpm), 0f);
 	}
 
-	private void SetSensorPosition(int i)
+	public Vector3 GetSensorPosition() // Used on CameraFollower script
 	{
-
-	}
-
-	public Vector3 GetSensorPosition()
-	{
-		return cameraSensor.transform.position;
-	}
-
-	private void SpawnSensor()
-	{
-		GameObject aux = Instantiate(cameraSensor, transform.position, transform.rotation);
-		cameraSensor = aux;
-	}
-
-	public void TurnOff (int i)
-	{
-
-	}
-
-	public static float Map (float x, float xMin, float xMax, float yMin, float yMax)
-	{
-		return (x - xMin) / (xMax - xMin) * (yMax - yMin) + yMin;
+		return currentCameraSensor.transform.position;
 	}
 }
 
@@ -123,6 +110,7 @@ public class VisualNote
 	public GameObject obj;
 	public bool isActive;
 	public Note note;
+	public LineRenderer lineRenderer;
 
 	public VisualNote(GameObject go, Note note_)
 	{
