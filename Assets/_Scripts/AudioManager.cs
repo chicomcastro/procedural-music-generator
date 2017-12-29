@@ -51,6 +51,12 @@ public class AudioManager : MonoBehaviour {
 		vs = FindObjectOfType<VisualConstructor>();
 	}
 
+	private void Start()
+	{
+		BPMinput.text = bpm.ToString();
+		SEEDinput.text = seed.ToString();
+	}
+
 	public void GenerateMelody () // When Play button is hitted, this method is called
 	{
 		noiseMap = PerlinNoise.GenerateHeights(size, size, seed, scale.Count-1, octaves, persistance, lacunarity);

@@ -39,7 +39,7 @@ public class VisualConstructor : MonoBehaviour {
 	{
 		CreateNewBranch();
 
-		SpawnNewTime(currentBranch);
+		SpawnNewTime();
 	}
 
 	public void CreateNewBranch()
@@ -49,9 +49,13 @@ public class VisualConstructor : MonoBehaviour {
 		currentBranch.tempo = new List<Tempo>();
 	}
 
-	public void SpawnNewTime(Branch currentBranch)
+	public void SpawnNewTime()
 	{
-		int actualTempoQuant = currentBranch.tempo.Count;
+		int actualTempoQuant = GetTempoQuant();
+
+		float lastPosX = 0;
+		if (actualTempoQuant >= 1)
+			lastPosX = currentBranch.tempo[actualTempoQuant - 1].note[0].obj.transform.position.x;
 
 		for (int i = 0; i < musicSize; i++)
 		{
@@ -62,7 +66,7 @@ public class VisualConstructor : MonoBehaviour {
 
 			for (int j = 0; j < amplitude; j++)
 			{
-				GameObject newGO = Instantiate(spotObject, new Vector3((imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j), transform.rotation, gridParent);
+				GameObject newGO = Instantiate(spotObject, new Vector3((lastPosX + spacement.x*2) + (imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j + imageHeight / 2), transform.rotation, gridParent);
 				currentTempo.note.Add(new VisualNote(newGO, audioManager.notes[j]));
 				newGO.GetComponent<NoteId>().info = currentTempo.note[currentTempo.note.Count - 1];
 			}
@@ -73,9 +77,19 @@ public class VisualConstructor : MonoBehaviour {
 	{
 		for (int i = 0; i < currentBranch.tempo.Count; i++)
 		{
-			VisualNote noteToActivate = currentBranch.tempo[i].note[notesHeights[i]];
-			noteToActivate.obj.GetComponent<NoteId>().Activate();
+			VisualNote noteToActivate = MatchNote(notesHeights, i);
+			noteToActivate.obj.GetComponent<NoteId>().ActivateFromButton();
 		}
+	}
+
+	private VisualNote MatchNote(int[] notesHeights, int i)
+	{
+		return currentBranch.tempo[i].note[GetValueCircularly(notesHeights, i)];
+	}
+
+	private int GetValueCircularly(int[] _array, int i)
+	{
+		return _array[i % _array.Length];
 	}
 
 	public void SpawnSensor()
@@ -86,12 +100,17 @@ public class VisualConstructor : MonoBehaviour {
 		GameObject aux = Instantiate(cameraSensorPrefab, transform.position, transform.rotation);
 		currentCameraSensor = aux;
 
-		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageHeight / (60f / audioManager.bpm), 0f);
+		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
 	}
 
 	public Vector3 GetSensorPosition() // Used on CameraFollower script
 	{
 		return currentCameraSensor.transform.position;
+	}
+
+	public int GetTempoQuant()
+	{
+		return currentBranch.tempo.Count;
 	}
 }
 
@@ -110,7 +129,6 @@ public class VisualNote
 	public GameObject obj;
 	public bool isActive;
 	public Note note;
-	public LineRenderer lineRenderer;
 
 	public VisualNote(GameObject go, Note note_)
 	{

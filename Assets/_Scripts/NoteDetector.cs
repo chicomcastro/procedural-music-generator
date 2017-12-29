@@ -2,23 +2,17 @@
 
 public class NoteDetector : MonoBehaviour
 {
-	AudioManager am;
-
-	void Start()
-	{
-		am = FindObjectOfType<AudioManager>();
-	}
-
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		NoteId nid = other.gameObject.GetComponent<NoteId>();
+		
 		if (nid == null)
 			return;
 
-		if (nid.info.isActive)
-		{
-			nid.Play();
-		}
+		if (!nid.info.isActive)
+			return;
+
+		nid.Play();
 	}
 
 	void OnTriggerExit2D(Collider2D other)

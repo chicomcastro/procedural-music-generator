@@ -25,10 +25,39 @@ public class NoteId : MonoBehaviour
 		Activate();
 	}
 
-	public void Activate ()
+	public void ActivateFromButton ()
+	{
+		info.isActive = true;
+
+		SetColorOnActivation();
+	}
+
+	private void Activate()
 	{
 		info.isActive = !info.isActive;
 
+		SetColorOnActivation();
+	}
+
+	public void Play()
+	{
+		TurnOn();
+
+		GetComponent<AudioSource>().Play();
+	}
+
+	private void TurnOn ()
+	{
+		GetComponent<SpriteRenderer>().color = playingColor;
+	}
+
+	public void TurnOff()
+	{
+		GetComponent<SpriteRenderer>().color = currentColor;
+	}
+
+	private void SetColorOnActivation()
+	{
 		if (info.isActive)
 		{
 			currentColor = pressedColor;
@@ -47,21 +76,5 @@ public class NoteId : MonoBehaviour
 
 			GetComponent<SpriteRenderer>().color = idleColor;
 		}
-	}
-
-	public void Play()
-	{
-		TurnOn();
-		GetComponent<AudioSource>().Play();
-	}
-
-	private void TurnOn ()
-	{
-		GetComponent<SpriteRenderer>().color = playingColor;
-	}
-
-	public void TurnOff()
-	{
-		GetComponent<SpriteRenderer>().color = currentColor;
 	}
 }
