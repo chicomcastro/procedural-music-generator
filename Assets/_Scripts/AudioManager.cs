@@ -19,17 +19,24 @@ public class AudioManager : MonoBehaviour {
 	public int[,] noiseMap;
 	
 	public float bpm = 120f;
-	public int size = 4;
+	public int dimensions = 4;
+	public int size = 20;
 	public int seed = 10;
 	public int octaves = 1;
 	[Range(0, 1)]
 	public float persistance = 1f;
 	public float lacunarity = 1f;
 
-	public Text BPMinput, SEEDinput;
+	public int signature = 4;
+
+	public Text bpmInput, dimensionInput, seedInput, octaveInput, lacunarityInput, sizeInput;
+	public Slider persistanceInput;
+	public Toggle loopToggle;
 
 	// Our reference to an audio manager
 	public static AudioManager instance;
+
+	public string[] scaleNotes = new string[] { "C", "D", "E", "G", "A" };
 
 	private void Awake() {
 
@@ -46,20 +53,14 @@ public class AudioManager : MonoBehaviour {
 
 		notes = Mapper.MapAudioClips(audioSamples);
 
-		scale = Mapper.GetScale(notes, new string[] { "C", "D", "E", "G", "A" });
+		scale = Mapper.GetScale(notes, scaleNotes);
 
 		vs = FindObjectOfType<VisualConstructor>();
 	}
-
-	private void Start()
-	{
-		BPMinput.text = bpm.ToString();
-		SEEDinput.text = seed.ToString();
-	}
-
+	
 	public void GenerateMelody () // When Play button is hitted, this method is called
 	{
-		noiseMap = PerlinNoise.GenerateHeights(size, size, seed, scale.Count-1, octaves, persistance, lacunarity);
+		noiseMap = PerlinNoise.GenerateHeights(dimensions, dimensions, seed, scale.Count-1, octaves, persistance, lacunarity);
 		
 		int[] aux = new int[noiseMap.GetLength(0)];
 
@@ -78,12 +79,10 @@ public class AudioManager : MonoBehaviour {
 		vs.ApplyMelody(melodyHeights);
 	}
 
-	public void Stop()
+	private void Stop()
 	{
 		FindObjectOfType<CameraFollower>().InitializeCamera();
 	}
-
-	// public void Pause()
 
 	private int[] ConvertNoiseMapIntoScaleInfo(int[] aux)
 	{
@@ -120,13 +119,17 @@ public class AudioManager : MonoBehaviour {
 		{
 			octaves = 0;
 		}
+		if (signature <= 0)
+		{
+			signature = 1;
+		}
 	}
 	
 	#region Encapsuling stuff
 	public void SetBPM()
 	{
 		int result;
-		if (int.TryParse(BPMinput.text, out result))
+		if (int.TryParse(bpmInput.text, out result))
 		{
 			bpm = result;
 		}
@@ -135,9 +138,50 @@ public class AudioManager : MonoBehaviour {
 	public void SetSeed()
 	{
 		int result;
-		if (int.TryParse(SEEDinput.text, out result))
+		if (int.TryParse(seedInput.text, out result))
 		{
 			seed = result;
+		}
+	}
+
+	public void SetOctave()
+	{
+		int result;
+		if (int.TryParse(octaveInput.text, out result))
+		{
+			octaves = result;
+		}
+	}
+
+	public void SetLacunarity()
+	{
+		int result;
+		if (int.TryParse(lacunarityInput.text, out result))
+		{
+			lacunarity = result;
+		}
+	}
+
+	public void SetPersistance()
+	{
+		persistance = persistanceInput.value;
+	}
+
+	public void SetDimensions()
+	{
+		int result;
+		if (int.TryParse(dimensionInput.text, out result))
+		{
+			dimensions = result;
+		}
+	}
+
+	public void SetSize()
+	{
+		int result;
+		if (int.TryParse(sizeInput.text, out result))
+		{
+			size = result;
 		}
 	}
 
@@ -148,33 +192,40 @@ public class AudioManager : MonoBehaviour {
 
 	public int GetMusicLength()
 	{
-		return size * size;
+		return dimensions * dimensions;
 	}
 
 	public int GetMusicSize()
 	{
-		return size;
+		return dimensions;
+	}
+
+	public int GetMusicArmature()
+	{
+		return signature;
 	}
 	#endregion
 }
 /* Prioridades:
- * - Colocar câmera para seguir
- * - Melhorar UI
- * - Colocar animação
- * - Gerar Perlin mais sofisticado
- * - Os tempos não estão legais
+ * - Colocar câmera para seguir OK
+ * - Melhorar UI OK
+ * - Colocar animação OK
+ * - Gerar Perlin mais sofisticado OK
+ * - Os tempos não estão legais OK
  * */
 
 /* - Ver se restringir as oitavas da melodia fica melhor
  *		- EDIT: estou começando a achar que a melodia já está boa
- *		- Acho que só acrescentar a harmonia e a percussão já vai ficar top
+ *		- Acho que só acrescentar a harmonia e a percussão já vai ficar top <<< THIS
+ *		
+ *	* COISAS PRA UMA VERSÃO PLUS
  * - Passar um filtro no noiseMap
  * - Definir trechos da música (intro, verso, refrão, etc)
  * - Fazer teste de probabilidade no noiseMap
  * - Melhorar as pausas (tentar)
  * - Definir harmonia (progressão de acordes com base no noiseMap)
  * - Definir trigger de eventos de sincopatia
- * - Dar feedback visual
+ * - Dar feedback visual OK
  * - Permitir output MIDI
  * - Controle de bateria/modalidade ao vivo
  * */

@@ -8,6 +8,7 @@ public class NoteId : MonoBehaviour
 	public Color playingColor;
 
 	private Color currentColor;
+	private ConfigManager configManager;
 
 	private void Awake()
 	{
@@ -18,6 +19,8 @@ public class NoteId : MonoBehaviour
 	{
 		GetComponent<AudioSource>().clip = info.note.clip;
 		currentColor = GetComponent<SpriteRenderer>().color;
+
+		configManager = FindObjectOfType<ConfigManager>();
 	}
 
 	void OnMouseDown()
@@ -25,9 +28,9 @@ public class NoteId : MonoBehaviour
 		Activate();
 	}
 
-	public void ActivateFromButton ()
+	public void SetButtonActivation (bool state)
 	{
-		info.isActive = true;
+		info.isActive = state;
 
 		SetColorOnActivation();
 	}
@@ -42,6 +45,11 @@ public class NoteId : MonoBehaviour
 	public void Play()
 	{
 		TurnOn();
+
+		if (configManager == null)
+			Debug.LogWarning("Erro no configManager da célula " + gameObject.name);
+		//else
+		//	GetComponent<AudioSource>().volume = configManager.GetCurrentVolume();
 
 		GetComponent<AudioSource>().Play();
 	}

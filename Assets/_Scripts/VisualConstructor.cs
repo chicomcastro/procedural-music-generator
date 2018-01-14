@@ -24,22 +24,34 @@ public class VisualConstructor : MonoBehaviour {
 
 	private GameObject currentCameraSensor;
 
+	private float lastCoordinate;
+
 	void Start()
 	{
 		amplitude = audioManager.GetNotesRange();
-		musicSize = audioManager.GetMusicSize();
+		musicSize = audioManager.GetMusicArmature();
 
 		imageLenght = spotObject.transform.localScale.x;
 		imageHeight = spotObject.transform.localScale.y;
-
+		
 		InitializeKeyboard();
+	}
+
+	private void Update()
+	{
+		SeeIfItveFinished();
 	}
 
 	private void InitializeKeyboard ()
 	{
+		lastCoordinate = 0;
+
 		CreateNewBranch();
 
-		SpawnNewTime();
+		for (int i = 0; i < audioManager.size; i++)
+		{
+			SpawnNewTime();
+		}
 	}
 
 	public void CreateNewBranch()
@@ -66,9 +78,18 @@ public class VisualConstructor : MonoBehaviour {
 
 			for (int j = 0; j < amplitude; j++)
 			{
-				GameObject newGO = Instantiate(spotObject, new Vector3((lastPosX + spacement.x*2) + (imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j + imageHeight / 2), transform.rotation, gridParent);
+				GameObject newGO = Instantiate(spotObject, new Vector3((lastPosX + spacement.x * 2) + (imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j + imageHeight / 2), transform.rotation, gridParent);
 				currentTempo.note.Add(new VisualNote(newGO, audioManager.notes[j]));
 				newGO.GetComponent<NoteId>().info = currentTempo.note[currentTempo.note.Count - 1];
+
+				if (newGO.transform.position.x > lastCoordinate)
+				{
+					lastCoordinate = newGO.transform.position.x;
+					FindObjectOfType<CameraFollower>().boundInf.transform.position = new Vector3(
+						lastCoordinate,
+						FindObjectOfType<CameraFollower>().boundInf.transform.position.y,
+						FindObjectOfType<CameraFollower>().boundInf.transform.position.z);
+				}
 			}
 		}
 	}
@@ -78,7 +99,14 @@ public class VisualConstructor : MonoBehaviour {
 		for (int i = 0; i < currentBranch.tempo.Count; i++)
 		{
 			VisualNote noteToActivate = MatchNote(notesHeights, i);
-			noteToActivate.obj.GetComponent<NoteId>().ActivateFromButton();
+			noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(true);
+			if (i > 0)
+			{
+				if (MatchNote(notesHeights, i).note.name == MatchNote(notesHeights, i - 1).note.name)
+				{
+					noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(false);
+				}
+			}
 		}
 	}
 
@@ -92,7 +120,7 @@ public class VisualConstructor : MonoBehaviour {
 		return _array[i % _array.Length];
 	}
 
-	public void SpawnSensor()
+	private void SpawnSensor()
 	{
 		if (currentCameraSensor != null)
 			Destroy(currentCameraSensor);
@@ -100,17 +128,109 @@ public class VisualConstructor : MonoBehaviour {
 		GameObject aux = Instantiate(cameraSensorPrefab, transform.position, transform.rotation);
 		currentCameraSensor = aux;
 
+		Play();
+	}
+
+	public void Play()
+	{
+		if (currentCameraSensor == null)
+		{
+			SpawnSensor();
+			return;
+		}
+
+		FindObjectOfType<CameraFollower>().followSensor = true;
 		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+	}
+
+	public void Pause()
+	{
+		if (currentCameraSensor == null)
+		{
+			Debug.LogWarning("We're trying to PAUSE, but there's no camera sensor instantiated");
+			return;
+		}
+
+		FindObjectOfType<CameraFollower>().followSensor = false;
+		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(0f, 0f);
+	}
+
+	public void Stop()
+	{
+		if (currentCameraSensor != null)
+		{
+			FindObjectOfType<CameraFollower>().GoHome();
+			Destroy(currentCameraSensor);
+		}
+		else
+		{
+			Debug.LogWarning("We're trying to STOP, but there's no camera sensor instantiated");
+			return;
+		}
+	}
+
+	private void Loop()
+	{
+		if (currentCameraSensor == null)
+			return;
+
+		FindObjectOfType<CameraFollower>().GoHome();
+		Destroy(currentCameraSensor);
+		SpawnSensor();
+		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+	}
+
+	public void Reset()
+	{
+		foreach (Tempo t in currentBranch.tempo)
+		{
+			foreach (VisualNote vs in t.note)
+			{
+				if (vs.isActive)
+				{
+					vs.obj.GetComponent<NoteId>().SetButtonActivation(false);
+				}
+			}
+		}
 	}
 
 	public Vector3 GetSensorPosition() // Used on CameraFollower script
 	{
+		if (currentCameraSensor == null)
+			return Vector3.zero;
+
 		return currentCameraSensor.transform.position;
 	}
 
 	public int GetTempoQuant()
 	{
 		return currentBranch.tempo.Count;
+	}
+
+	private void SeeIfItveFinished()
+	{
+		if (currentCameraSensor == null)
+			return;
+
+		if (GetSensorPosition().x > lastCoordinate)
+		{
+			if (audioManager.loopToggle.isOn)
+			{
+				Loop();
+				return;
+			}
+			Pause();
+		}
+	}
+
+	public void SpawnNewKeyboard()
+	{
+		for (int i = 0; i < gridParent.childCount; i++)
+		{
+			Destroy(gridParent.GetChild(i).gameObject);
+		}
+
+		InitializeKeyboard();
 	}
 }
 

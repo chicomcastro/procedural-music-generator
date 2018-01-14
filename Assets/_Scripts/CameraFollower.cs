@@ -25,6 +25,7 @@ public class CameraFollower : MonoBehaviour {
 	private Vector3 dragOrigin;
 	private Vector3 initialPos;
 	private Vector3 target;
+	private float moveToSpeed = 2.0f;
 
 	void Start ()
 	{
@@ -36,19 +37,24 @@ public class CameraFollower : MonoBehaviour {
 		if (ShouldMove())
 			Move();
 
-		Zoom();
+		//Zoom();
 	}
 
 	void FixedUpdate()
 	{
 		if (followSensor)
 		{
+			moveToSpeed = 60f / audioManager.bpm;
+
 			if (shouldFollowSensor)
 			{
 				FollowSensor();
 				return;
 			}
 		}
+
+		if (moveToSpeed != 2.0f)
+			moveToSpeed = 2.0f;
 
 		#region Drag and move system (Unabled)
 		if (Input.GetMouseButtonDown(2))
@@ -80,6 +86,7 @@ public class CameraFollower : MonoBehaviour {
 	private void FollowSensor()
 	{
 		target = vs.GetSensorPosition();
+		target.y = transform.position.y;
 		StartCoroutine("MoveTo");
 	}
 
@@ -95,7 +102,7 @@ public class CameraFollower : MonoBehaviour {
 		{
 			Vector3 aux = transform.position;
 
-			Vector3 desiredPosition = Vector3.Lerp(aux, target, Time.fixedDeltaTime * 2.0f);
+			Vector3 desiredPosition = Vector3.Lerp(aux, target, Time.fixedDeltaTime * moveToSpeed);
 			
 			if (Vector3.Magnitude(transform.position - target) < 0.1f || !ShouldMove())
 			{
@@ -111,7 +118,7 @@ public class CameraFollower : MonoBehaviour {
 	}
 
 	private void Move()
-	{
+	{/*
 		if (
 			Input.GetKey("w") ||
 			(Input.mousePosition.y >= (Screen.height - panBoardThickness) &&
@@ -128,7 +135,7 @@ public class CameraFollower : MonoBehaviour {
 		   )
 		{
 			GoDown();
-		}
+		}*/
 		if (
 			Input.GetKey("d") ||
 			(Input.mousePosition.x >= Screen.width - panBoardThickness && Input.mousePosition.x <= Screen.width) ||
@@ -149,7 +156,7 @@ public class CameraFollower : MonoBehaviour {
 
 	private void Zoom ()
 	{
-		float scroll = LimitScrollSensibility(Input.GetAxis("Mouse ScrollWheel"));
+		float scroll = LimitScrollSensibility(-Input.GetAxis("Mouse ScrollWheel"));
 
 		float desiredZoom = Camera.main.orthographicSize * (1 + scroll * zoomSpeed);
 
