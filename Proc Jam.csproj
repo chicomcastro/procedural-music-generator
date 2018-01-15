@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Scripts\AudioManager.cs" />
+    <Compile Include="Assets\_Scripts\AudioManagerScriptEditor.cs" />
     <Compile Include="Assets\_Scripts\CameraFollower.cs" />
     <Compile Include="Assets\_Scripts\ConfigManager.cs" />
     <Compile Include="Assets\_Scripts\Mapper.cs" />

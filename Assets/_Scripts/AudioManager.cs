@@ -3,9 +3,22 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 
+[System.Serializable]
+public class UserInterface
+{
+	public Slider persistanceInput;
+	public Text bpmInput, dimensionInput, seedInput, octaveInput, lacunarityInput, sizeInput;
+	public Toggle loopToggle;
+}
+
 public class AudioManager : MonoBehaviour {
 
-	// Our list of sounds
+	#region Not important for live performance :)
+	[Header("User interface")]
+	public UserInterface publicReferences = new UserInterface();
+
+	[Space]
+	[Header("Our list of sounds")]
 	public AudioClip[] audioSamples;
 	public List<Note> notes = new List<Note>();
 	private List<Note> scale = new List<Note>();
@@ -17,10 +30,13 @@ public class AudioManager : MonoBehaviour {
 	const int PAUSE = 1;
 
 	public int[,] noiseMap;
-	
+	#endregion
+
+	[Space]
+	[Header("Melody parameters")]
 	public float bpm = 120f;
 	public int dimensions = 4;
-	public int size = 20;
+	public int size = 8;
 	public int seed = 10;
 	public int octaves = 1;
 	[Range(0, 1)]
@@ -28,10 +44,6 @@ public class AudioManager : MonoBehaviour {
 	public float lacunarity = 1f;
 
 	public int signature = 4;
-
-	public Text bpmInput, dimensionInput, seedInput, octaveInput, lacunarityInput, sizeInput;
-	public Slider persistanceInput;
-	public Toggle loopToggle;
 
 	// Our reference to an audio manager
 	public static AudioManager instance;
@@ -60,8 +72,8 @@ public class AudioManager : MonoBehaviour {
 	
 	public void GenerateMelody () // When Play button is hitted, this method is called
 	{
-		noiseMap = PerlinNoise.GenerateHeights(dimensions, dimensions, seed, scale.Count-1, octaves, persistance, lacunarity);
-		
+		noiseMap = GetNoiseMap();
+
 		int[] aux = new int[noiseMap.GetLength(0)];
 
 		for (int i = 0; i < aux.Length; i++)
@@ -75,13 +87,29 @@ public class AudioManager : MonoBehaviour {
 		// StartCoroutine (GenerateHarmony())
 
 		int[] melodyHeights = ConvertNoiseMapIntoScaleInfo(aux);
-		
-		vs.ApplyMelody(melodyHeights);
-	}
 
-	private void Stop()
-	{
-		FindObjectOfType<CameraFollower>().InitializeCamera();
+		if (vs != null)
+		{
+			vs.ApplyMelody(melodyHeights);
+			return;
+		}
+
+		// I've generated, now I must store or play this melody
+		StartCoroutine(PlayMusic(melodyHeights));
+
+		// This part is not necessary right now, but it's good to keep this peace of code for future
+		/*
+		List<AudioClip> clipsForMerge = new List<AudioClip>();
+		foreach (int i in melodyHeights)
+		{
+			clipsForMerge.Add(notes[i].clip);
+		}
+
+		AudioClip mergedClip = Combine(clipsForMerge.ToArray());
+		AudioSource aS = gameObject.AddComponent<AudioSource>();
+		aS.clip = mergedClip;
+		aS.Play();
+		*/
 	}
 
 	private int[] ConvertNoiseMapIntoScaleInfo(int[] aux)
@@ -105,6 +133,73 @@ public class AudioManager : MonoBehaviour {
 		return result;
 	}
 
+	private int[,] GetNoiseMap()
+	{
+		return PerlinNoise.GenerateHeights(dimensions, dimensions, seed, scale.Count - 1, octaves, persistance, lacunarity);
+	}
+	int currentTempo = 1;
+	IEnumerator PlayMusic(int[] melody)
+	{
+		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+
+		yield return new WaitUntil(() => currentTempo == 1);
+
+		while (true)
+		{
+			currentTempo = 1;
+			for (int i = 0; i < size * 4; i++)
+			{
+				audioSource.clip = notes[melody[i]].clip;
+
+				// Fazer lógica de não tocar caso seja repetido
+				
+				audioSource.Play();
+				yield return new WaitForSeconds(60f / bpm);
+
+				currentTempo++;
+			}
+		}
+	}
+
+	/* Combine audio clips method
+	private static AudioClip Combine(params AudioClip[] clips)
+	{
+		if (clips == null || clips.Length == 0)
+			return null;
+
+		int length = 0;
+		for (int i = 0; i < clips.Length; i++)
+		{
+			if (clips[i] == null)
+				continue;
+
+			length += clips[i].samples * clips[i].channels;
+		}
+
+		float[] data = new float[length];
+		length = 0;
+		for (int i = 0; i < clips.Length; i++)
+		{
+			if (clips[i] == null)
+				continue;
+
+			float[] buffer = new float[clips[i].samples * clips[i].channels];
+			clips[i].GetData(buffer, 0);
+			//System.Buffer.BlockCopy(buffer, 0, data, length, buffer.Length);
+			buffer.CopyTo(data, length);
+			length += buffer.Length;
+		}
+
+		if (length == 0)
+			return null;
+
+		AudioClip result = AudioClip.Create("Combine", length / 2, 2, 44100, false, false);
+		result.SetData(data, 0);
+
+		return result;
+	}
+	*/
+
 	void OnValidate()
 	{
 		if (bpm < 60)
@@ -115,13 +210,13 @@ public class AudioManager : MonoBehaviour {
 		{
 			lacunarity = 1;
 		}
-		if (octaves < 0)
+		if (octaves < 1)
 		{
-			octaves = 0;
+			octaves = 1;
 		}
-		if (signature <= 0)
+		if (signature < 2)
 		{
-			signature = 1;
+			signature = 2;
 		}
 	}
 	
@@ -129,7 +224,7 @@ public class AudioManager : MonoBehaviour {
 	public void SetBPM()
 	{
 		int result;
-		if (int.TryParse(bpmInput.text, out result))
+		if (int.TryParse(publicReferences.bpmInput.text, out result))
 		{
 			bpm = result;
 		}
@@ -138,7 +233,7 @@ public class AudioManager : MonoBehaviour {
 	public void SetSeed()
 	{
 		int result;
-		if (int.TryParse(seedInput.text, out result))
+		if (int.TryParse(publicReferences.seedInput.text, out result))
 		{
 			seed = result;
 		}
@@ -147,7 +242,7 @@ public class AudioManager : MonoBehaviour {
 	public void SetOctave()
 	{
 		int result;
-		if (int.TryParse(octaveInput.text, out result))
+		if (int.TryParse(publicReferences.octaveInput.text, out result))
 		{
 			octaves = result;
 		}
@@ -156,7 +251,7 @@ public class AudioManager : MonoBehaviour {
 	public void SetLacunarity()
 	{
 		int result;
-		if (int.TryParse(lacunarityInput.text, out result))
+		if (int.TryParse(publicReferences.lacunarityInput.text, out result))
 		{
 			lacunarity = result;
 		}
@@ -164,13 +259,13 @@ public class AudioManager : MonoBehaviour {
 
 	public void SetPersistance()
 	{
-		persistance = persistanceInput.value;
+		persistance = publicReferences.persistanceInput.value;
 	}
 
 	public void SetDimensions()
 	{
 		int result;
-		if (int.TryParse(dimensionInput.text, out result))
+		if (int.TryParse(publicReferences.dimensionInput.text, out result))
 		{
 			dimensions = result;
 		}
@@ -179,7 +274,7 @@ public class AudioManager : MonoBehaviour {
 	public void SetSize()
 	{
 		int result;
-		if (int.TryParse(sizeInput.text, out result))
+		if (int.TryParse(publicReferences.sizeInput.text, out result))
 		{
 			size = result;
 		}
@@ -205,6 +300,39 @@ public class AudioManager : MonoBehaviour {
 		return signature;
 	}
 	#endregion
+
+	#region Live keyboard
+	public float transpose = 0;  // transpose in semitones
+	private new AudioSource audio;
+
+	private void Start()
+	{
+		audio = gameObject.AddComponent<AudioSource>();
+		audio.clip = notes[0].clip;
+	}
+
+	void Update()
+	{
+
+		float note = -1; // invalid value to detect when note is pressed
+		if (Input.GetKeyDown("a")) note = 0;  // C
+		if (Input.GetKeyDown("s")) note = 2;  // D
+		if (Input.GetKeyDown("d")) note = 4;  // E
+		if (Input.GetKeyDown("f")) note = 5;  // F
+		if (Input.GetKeyDown("g")) note = 7;  // G
+		if (Input.GetKeyDown("h")) note = 9;  // A
+		if (Input.GetKeyDown("j")) note = 11; // B
+		if (Input.GetKeyDown("k")) note = 12; // C
+		if (Input.GetKeyDown("l")) note = 14; // D
+
+		if (note >= 0)
+		{ // if some key pressed...
+			audio.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
+			audio.Play();
+		}
+	}
+	#endregion
+
 }
 /* Prioridades:
  * - Colocar câmera para seguir OK

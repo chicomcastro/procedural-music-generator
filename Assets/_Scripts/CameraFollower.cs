@@ -138,7 +138,7 @@ public class CameraFollower : MonoBehaviour {
 		}*/
 		if (
 			Input.GetKey("d") ||
-			(Input.mousePosition.x >= Screen.width - panBoardThickness && Input.mousePosition.x <= Screen.width) ||
+			//(Input.mousePosition.x >= Screen.width - panBoardThickness && Input.mousePosition.x <= Screen.width) ||
 			Input.GetKey(KeyCode.RightArrow)
 		   )
 		{
@@ -146,7 +146,7 @@ public class CameraFollower : MonoBehaviour {
 		}
 		if (
 			Input.GetKey("a") ||
-			(Input.mousePosition.x <= panBoardThickness && Input.mousePosition.x >= 0f) ||
+			//(Input.mousePosition.x <= panBoardThickness && Input.mousePosition.x >= 0f) ||
 			Input.GetKey(KeyCode.LeftArrow)
 		)
 		{

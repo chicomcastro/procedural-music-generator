@@ -214,7 +214,7 @@ public class VisualConstructor : MonoBehaviour {
 
 		if (GetSensorPosition().x > lastCoordinate)
 		{
-			if (audioManager.loopToggle.isOn)
+			if (audioManager.publicReferences.loopToggle.isOn)
 			{
 				Loop();
 				return;

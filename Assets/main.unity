@@ -1802,7 +1802,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d2e3b2369e7753f4b86d87f91c193f77, type: 3}
   bpm: 300
   dimensions: 11
-  size: 16
+  size: 8
   seed: 20
   octaves: 4
   persistance: 0.5
@@ -3586,7 +3586,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: +
+  m_Text: Respawn keyboard
 --- !u!222 &634853096
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5503,7 +5503,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 16
+  m_Text: 8
 --- !u!222 &1012753790
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6626,7 +6626,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 200, y: 60}
+  m_CellSize: {x: 200, y: 58}
   m_Spacing: {x: 225, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -8232,7 +8232,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.9330854, y: 0}
+  m_Offset: {x: 0.47837448, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -8243,7 +8243,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 7.633829, y: 10}
+  m_Size: {x: 2.8109093, y: 10}
   m_EdgeRadius: 0
 --- !u!4 &1566479940
 Transform:
@@ -9722,6 +9722,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1937291001}
   - component: {fileID: 1937291002}
+  - component: {fileID: 1937291003}
   m_Layer: 5
   m_Name: Persistance
   m_TagString: Untagged
@@ -9810,6 +9811,25 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Slider+SliderEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &1937291003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1937291000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1679637790, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 50
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1987039419
 GameObject:
   m_ObjectHideFlags: 0
