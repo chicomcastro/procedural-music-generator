@@ -1,0 +1,16 @@
+AudioManager:
+    ☐ Organizar e modularizar scripts
+    ☐ Fazer cada nota ser tocada em um audio source diferente
+        ☐ Assim, poderá tocar-se mais de uma nota por vez (harmonia)
+    ☐ Tentar gerar uma melodia com o Perlin Noise usando a nova forma de output
+    ☐ Criar sistema de gerar harmonia a partir de uma nota base dada
+        ☐ Tríades maiores naturais
+        ☐ Tríades menores naturais
+        ☐ Notas com sétima
+        ☐ Puxar o baixo
+        ☐ Fazer linha base de baixo
+            ☐ Baixo pedal
+            ☐ Escala harmônica
+            ☐ Arpejo
+            ☐ Sequência pseudo-randômica
+    ☐ Implementar notas sustentadas

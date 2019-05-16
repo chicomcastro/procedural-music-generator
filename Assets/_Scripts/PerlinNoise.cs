@@ -118,12 +118,12 @@ public static class PerlinNoise {
 			}
 		}
 
-		if (Application.isEditor)
-		{
-			// Create a txt with noise data
-			TxtStuff(heights, "rounded");
-			TxtStuff(heights2, "bruto");
-		}
+		// if (Application.isEditor)
+		// {
+		// 	// Create a txt with noise data
+		// 	TxtStuff(heights, "rounded");
+		// 	TxtStuff(heights2, "bruto");
+		// }
 
 		return result;
 	}
