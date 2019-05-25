@@ -1,4 +1,4 @@
-# Online-Sequencer_ProcJam
+# Procedural Music Maker / Online Sequencer
 Development of a online sequencer with procedural generation of melodies
 
 This is a little tool that I'm developing for musical purposes.
