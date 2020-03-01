@@ -1,4 +1,4 @@
-# Procedural Music Maker / Online Sequencer
+# Procedural Music Generator
 Development of a online sequencer with procedural generation of melodies
 
 This is a little tool that I'm developing for musical purposes.
