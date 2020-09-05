@@ -54,6 +54,8 @@ public class LivePlayer : MonoBehaviour
                 AudioSource audioSource = audioSources[note];
                 audioSource.pitch = Mathf.Pow(2, (note + transpose + octave * 12) / 12.0f);
                 audioSource.Play();
+
+                PositionController.instance.MoveToPosition(note);
             }
 		}
 	}
