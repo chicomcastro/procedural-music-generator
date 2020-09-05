@@ -11,6 +11,7 @@ public class PositionController : MonoBehaviour
     private Vector3 targetPosition;
 
     public float lerpVelocity = 5f;
+    public float amplitude = 0.1f;
 
     private void Awake()
     {
@@ -49,7 +50,11 @@ public class PositionController : MonoBehaviour
 
     private void Update()
     {
-        transform.position = Vector3.Lerp(transform.position, targetPosition, lerpVelocity * Time.deltaTime);
+        Vector3 positionNoise = new Vector3(0, Random.Range(-amplitude, +amplitude), 0);
+        transform.position = Vector3.Lerp(
+            transform.position,
+            targetPosition + positionNoise,
+            lerpVelocity * Time.deltaTime);
     }
 
     /// <summary>

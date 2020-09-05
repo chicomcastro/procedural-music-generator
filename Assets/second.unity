@@ -339,6 +339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lerpVelocity: 10
+  amplitude: 0.5
 --- !u!1 &2092709940
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,6 +542,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lerpVelocity: 5
+  amplitude: 0.1
 --- !u!1001 &2060836302712674607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -578,15 +580,65 @@ PrefabInstance:
       propertyPath: EmissionModule.rateOverTime.scalar
       value: 50
       objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: EmissionModule.rateOverDistance.scalar
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.ribbonCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.textureMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.splitSubEmitterRibbons
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.sizeAffectsWidth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.widthOverTrail.scalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749877, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: TrailModule.generateLightingData
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2060836302521749878, guid: da2627534d57f014085897f354f182b8,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9c89904e0be4f3e428979c207f86fe5b, type: 2}
     - target: {fileID: 2060836302521749880, guid: da2627534d57f014085897f354f182b8,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.03
+      value: -2.96
       objectReference: {fileID: 0}
     - target: {fileID: 2060836302521749880, guid: da2627534d57f014085897f354f182b8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.54
+      value: -2.62
       objectReference: {fileID: 0}
     - target: {fileID: 2060836302521749880, guid: da2627534d57f014085897f354f182b8,
         type: 3}
