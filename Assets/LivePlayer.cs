@@ -8,6 +8,7 @@ public class LivePlayer : MonoBehaviour
 	public float transpose = 0;  // transpose in semitones
 	private List<AudioSource> audioSources = new List<AudioSource>();
 	public AudioClip baseNote;
+    public int octave = 0;
 
 	private void Start()
 	{
@@ -41,14 +42,17 @@ public class LivePlayer : MonoBehaviour
 		if (Input.GetKeyDown("j")) notes.Add(11); // B
 		if (Input.GetKeyDown("k")) notes.Add(12); // C
 		if (Input.GetKeyDown("o")) notes.Add(13); // C#
-		if (Input.GetKeyDown("l")) notes.Add(14); // D  
+		if (Input.GetKeyDown("l")) notes.Add(14); // D
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) octave += -1;
+        if (Input.GetKeyDown(KeyCode.RightArrow)) octave += 1;
 
         // if some key pressed...
 		if (notes.Count > 0)
 		{
             foreach(int note in notes) {
                 AudioSource audioSource = audioSources[note];
-                audioSource.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
+                audioSource.pitch = Mathf.Pow(2, (note + transpose + octave * 12) / 12.0f);
                 audioSource.Play();
             }
 		}
