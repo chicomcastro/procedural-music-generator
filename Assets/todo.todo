@@ -1,3 +1,12 @@
+Notas 05/09/2020:
+    - Fiz efeito visual pra mudar a posição de uma bolinha com efeito de partículas de calda legal quando
+    toca alguma nota
+    TODOs:
+    - Verificar se o sistema é escalável para várias bolinhas
+    - Refatorar sistema de geração de melodia (acho que tá tudo no AudioManager)
+
+
+Alguma coisa de meados de 2017 (tentar reviver depois):
 AudioManager:
     ☐ Organizar e modularizar scripts
     ☐ Fazer cada nota ser tocada em um audio source diferente
