@@ -2,258 +2,259 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VisualConstructor : MonoBehaviour {
+public class VisualConstructor : MonoBehaviour
+{
 
-	public GameObject spotObject;
-	public Canvas canvas;
-	public GameObject cameraSensorPrefab;
-	public GameObject branchCanvas;
-	public AudioManager audioManager;
+    public GameObject spotObject;
+    public Canvas canvas;
+    public GameObject cameraSensorPrefab;
+    public GameObject branchCanvas;
+    public AudioManager audioManager;
 
-	public Vector2 spacement;
-	public Transform gridParent;
+    public Vector2 spacement;
+    public Transform gridParent;
 
-	private List<Branch> branch = new List<Branch>();
+    private List<Branch> branch = new List<Branch>();
 
-	private int amplitude;
-	private int musicSize;
-	private float imageLenght;
-	private float imageHeight;
+    private int amplitude;
+    private int musicSize;
+    private float imageLenght;
+    private float imageHeight;
 
-	private Branch currentBranch;
+    private Branch currentBranch;
 
-	private GameObject currentCameraSensor;
+    private GameObject currentCameraSensor;
 
-	private float lastCoordinate;
+    private float lastCoordinate;
 
-	void Start()
-	{
-		amplitude = audioManager.GetNotesRange();
-		musicSize = audioManager.GetMusicArmature();
+    void Start()
+    {
+        amplitude = audioManager.GetNotesRange();
+        musicSize = audioManager.GetMusicArmature();
 
-		imageLenght = spotObject.transform.localScale.x;
-		imageHeight = spotObject.transform.localScale.y;
-		
-		InitializeKeyboard();
-	}
+        imageLenght = spotObject.transform.localScale.x;
+        imageHeight = spotObject.transform.localScale.y;
 
-	private void Update()
-	{
-		SeeIfItveFinished();
-	}
+        InitializeKeyboard();
+    }
 
-	private void InitializeKeyboard ()
-	{
-		lastCoordinate = 0;
+    private void Update()
+    {
+        SeeIfItveFinished();
+    }
 
-		CreateNewBranch();
+    private void InitializeKeyboard()
+    {
+        lastCoordinate = 0;
 
-		for (int i = 0; i < audioManager.size; i++)
-		{
-			SpawnNewTime();
-		}
-	}
+        CreateNewBranch();
 
-	public void CreateNewBranch()
-	{
-		branch.Add(new Branch());
-		currentBranch = branch[branch.Count - 1];
-		currentBranch.tempo = new List<Tempo>();
-	}
+        for (int i = 0; i < audioManager.size; i++)
+        {
+            SpawnNewTime();
+        }
+    }
 
-	public void SpawnNewTime()
-	{
-		int actualTempoQuant = GetTempoQuant();
+    public void CreateNewBranch()
+    {
+        branch.Add(new Branch());
+        currentBranch = branch[branch.Count - 1];
+        currentBranch.tempo = new List<Tempo>();
+    }
 
-		float lastPosX = 0;
-		if (actualTempoQuant >= 1)
-			lastPosX = currentBranch.tempo[actualTempoQuant - 1].note[0].obj.transform.position.x;
+    public void SpawnNewTime()
+    {
+        int actualTempoQuant = GetTempoQuant();
 
-		for (int i = 0; i < musicSize; i++)
-		{
-			currentBranch.tempo.Add(new Tempo());
+        float lastPosX = 0;
+        if (actualTempoQuant >= 1)
+            lastPosX = currentBranch.tempo[actualTempoQuant - 1].note[0].obj.transform.position.x;
 
-			Tempo currentTempo = currentBranch.tempo[i + actualTempoQuant];
-			currentTempo.note = new List<VisualNote>();
+        for (int i = 0; i < musicSize; i++)
+        {
+            currentBranch.tempo.Add(new Tempo());
 
-			for (int j = 0; j < amplitude; j++)
-			{
-				GameObject newGO = Instantiate(spotObject, new Vector3((lastPosX + spacement.x * 2) + (imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j + imageHeight / 2), transform.rotation, gridParent);
-				currentTempo.note.Add(new VisualNote(newGO, audioManager.notes[j]));
-				newGO.GetComponent<NoteId>().info = currentTempo.note[currentTempo.note.Count - 1];
+            Tempo currentTempo = currentBranch.tempo[i + actualTempoQuant];
+            currentTempo.note = new List<VisualKey>();
 
-				if (newGO.transform.position.x > lastCoordinate)
-				{
-					lastCoordinate = newGO.transform.position.x;
-					FindObjectOfType<CameraFollower>().boundInf.transform.position = new Vector3(
-						lastCoordinate,
-						FindObjectOfType<CameraFollower>().boundInf.transform.position.y,
-						FindObjectOfType<CameraFollower>().boundInf.transform.position.z);
-				}
-			}
-		}
-	}
+            for (int j = 0; j < amplitude; j++)
+            {
+                GameObject newGO = Instantiate(spotObject, new Vector3((lastPosX + spacement.x * 2) + (imageLenght + spacement.x) * i + 1f, (imageHeight + spacement.y) * j + imageHeight / 2), transform.rotation, gridParent);
+                currentTempo.note.Add(new VisualKey(newGO, audioManager.notes[j]));
+                newGO.GetComponent<NoteId>().info = currentTempo.note[currentTempo.note.Count - 1];
 
-	public void ApplyMelody (int[] notesHeights)
-	{
-		for (int i = 0; i < currentBranch.tempo.Count; i++)
-		{
-			VisualNote noteToActivate = MatchNote(notesHeights, i);
-			noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(true);
-			if (i > 0)
-			{
-				if (MatchNote(notesHeights, i).note.name == MatchNote(notesHeights, i - 1).note.name)
-				{
-					noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(false);
-				}
-			}
-		}
-	}
+                if (newGO.transform.position.x > lastCoordinate)
+                {
+                    lastCoordinate = newGO.transform.position.x;
+                    FindObjectOfType<CameraFollower>().boundInf.transform.position = new Vector3(
+                        lastCoordinate,
+                        FindObjectOfType<CameraFollower>().boundInf.transform.position.y,
+                        FindObjectOfType<CameraFollower>().boundInf.transform.position.z);
+                }
+            }
+        }
+    }
 
-	private VisualNote MatchNote(int[] notesHeights, int i)
-	{
-		return currentBranch.tempo[i].note[GetValueCircularly(notesHeights, i)];
-	}
+    public void ApplyMelody(int[] notesHeights)
+    {
+        for (int i = 0; i < currentBranch.tempo.Count; i++)
+        {
+            VisualKey noteToActivate = MatchNote(notesHeights, i);
+            noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(true);
+            if (i > 0)
+            {
+                if (MatchNote(notesHeights, i).note.name == MatchNote(notesHeights, i - 1).note.name)
+                {
+                    noteToActivate.obj.GetComponent<NoteId>().SetButtonActivation(false);
+                }
+            }
+        }
+    }
 
-	private int GetValueCircularly(int[] _array, int i)
-	{
-		return _array[i % _array.Length];
-	}
+    private VisualKey MatchNote(int[] notesHeights, int i)
+    {
+        return currentBranch.tempo[i].note[GetValueCircularly(notesHeights, i)];
+    }
 
-	private void SpawnSensor()
-	{
-		if (currentCameraSensor != null)
-			Destroy(currentCameraSensor);
+    private int GetValueCircularly(int[] _array, int i)
+    {
+        return _array[i % _array.Length];
+    }
 
-		GameObject aux = Instantiate(cameraSensorPrefab, transform.position, transform.rotation);
-		currentCameraSensor = aux;
+    private void SpawnSensor()
+    {
+        if (currentCameraSensor != null)
+            Destroy(currentCameraSensor);
 
-		Play();
-	}
+        GameObject aux = Instantiate(cameraSensorPrefab, transform.position, transform.rotation);
+        currentCameraSensor = aux;
 
-	public void Play()
-	{
-		if (currentCameraSensor == null)
-		{
-			SpawnSensor();
-			return;
-		}
+        Play();
+    }
 
-		FindObjectOfType<CameraFollower>().followSensor = true;
-		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
-	}
+    public void Play()
+    {
+        if (currentCameraSensor == null)
+        {
+            SpawnSensor();
+            return;
+        }
 
-	public void Pause()
-	{
-		if (currentCameraSensor == null)
-		{
-			Debug.LogWarning("We're trying to PAUSE, but there's no camera sensor instantiated");
-			return;
-		}
+        FindObjectOfType<CameraFollower>().followSensor = true;
+        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+    }
 
-		FindObjectOfType<CameraFollower>().followSensor = false;
-		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(0f, 0f);
-	}
+    public void Pause()
+    {
+        if (currentCameraSensor == null)
+        {
+            Debug.LogWarning("We're trying to PAUSE, but there's no camera sensor instantiated");
+            return;
+        }
 
-	public void Stop()
-	{
-		if (currentCameraSensor != null)
-		{
-			FindObjectOfType<CameraFollower>().GoHome();
-			Destroy(currentCameraSensor);
-		}
-		else
-		{
-			Debug.LogWarning("We're trying to STOP, but there's no camera sensor instantiated");
-			return;
-		}
-	}
+        FindObjectOfType<CameraFollower>().followSensor = false;
+        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(0f, 0f);
+    }
 
-	private void Loop()
-	{
-		if (currentCameraSensor == null)
-			return;
+    public void Stop()
+    {
+        if (currentCameraSensor != null)
+        {
+            FindObjectOfType<CameraFollower>().GoHome();
+            Destroy(currentCameraSensor);
+        }
+        else
+        {
+            Debug.LogWarning("We're trying to STOP, but there's no camera sensor instantiated");
+            return;
+        }
+    }
 
-		FindObjectOfType<CameraFollower>().GoHome();
-		Destroy(currentCameraSensor);
-		SpawnSensor();
-		currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
-	}
+    private void Loop()
+    {
+        if (currentCameraSensor == null)
+            return;
 
-	public void Reset()
-	{
-		foreach (Tempo t in currentBranch.tempo)
-		{
-			foreach (VisualNote vs in t.note)
-			{
-				if (vs.isActive)
-				{
-					vs.obj.GetComponent<NoteId>().SetButtonActivation(false);
-				}
-			}
-		}
-	}
+        FindObjectOfType<CameraFollower>().GoHome();
+        Destroy(currentCameraSensor);
+        SpawnSensor();
+        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+    }
 
-	public Vector3 GetSensorPosition() // Used on CameraFollower script
-	{
-		if (currentCameraSensor == null)
-			return Vector3.zero;
+    public void Reset()
+    {
+        foreach (Tempo t in currentBranch.tempo)
+        {
+            foreach (VisualKey vs in t.note)
+            {
+                if (vs.isActive)
+                {
+                    vs.obj.GetComponent<NoteId>().SetButtonActivation(false);
+                }
+            }
+        }
+    }
 
-		return currentCameraSensor.transform.position;
-	}
+    public Vector3 GetSensorPosition() // Used on CameraFollower script
+    {
+        if (currentCameraSensor == null)
+            return Vector3.zero;
 
-	public int GetTempoQuant()
-	{
-		return currentBranch.tempo.Count;
-	}
+        return currentCameraSensor.transform.position;
+    }
 
-	private void SeeIfItveFinished()
-	{
-		if (currentCameraSensor == null)
-			return;
+    public int GetTempoQuant()
+    {
+        return currentBranch.tempo.Count;
+    }
 
-		if (GetSensorPosition().x > lastCoordinate)
-		{
-			if (audioManager.publicReferences.loopToggle.isOn)
-			{
-				Loop();
-				return;
-			}
-			Pause();
-		}
-	}
+    private void SeeIfItveFinished()
+    {
+        if (currentCameraSensor == null)
+            return;
 
-	public void SpawnNewKeyboard()
-	{
-		for (int i = 0; i < gridParent.childCount; i++)
-		{
-			Destroy(gridParent.GetChild(i).gameObject);
-		}
+        if (GetSensorPosition().x > lastCoordinate)
+        {
+            if (audioManager.publicReferences.loopToggle.isOn)
+            {
+                Loop();
+                return;
+            }
+            Pause();
+        }
+    }
 
-		InitializeKeyboard();
-	}
+    public void SpawnNewKeyboard()
+    {
+        for (int i = 0; i < gridParent.childCount; i++)
+        {
+            Destroy(gridParent.GetChild(i).gameObject);
+        }
+
+        InitializeKeyboard();
+    }
 }
 
 public class Branch
 {
-	public List<Tempo> tempo;
+    public List<Tempo> tempo;
 }
 
 public class Tempo
 {
-	public List<VisualNote> note;
+    public List<VisualKey> note;
 }
 
-public class VisualNote
+public class VisualKey
 {
-	public GameObject obj;
-	public bool isActive;
-	public Note note;
+    public GameObject obj;
+    public bool isActive;
+    public Note note;
 
-	public VisualNote(GameObject go, Note note_)
-	{
-		obj = go;
-		isActive = false;
-		note = note_;
-	}
+    public VisualKey(GameObject go, Note note_)
+    {
+        obj = go;
+        isActive = false;
+        note = note_;
+    }
 }

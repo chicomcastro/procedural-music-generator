@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Demo script to play notes through computers keyboard
+/// </summary>
 public class LivePlayer : MonoBehaviour
 {
 	#region Live keyboard
@@ -55,7 +58,8 @@ public class LivePlayer : MonoBehaviour
                 audioSource.pitch = Mathf.Pow(2, (note + transpose + octave * 12) / 12.0f);
                 audioSource.Play();
 
-                PositionController.instance.MoveToPosition(note);
+                // Control the position of the main VisualNote instantiated
+                PositionController.MoveNoteToPosition(VisualNote.main, note);
             }
 		}
 	}

@@ -2,9 +2,16 @@ Notas 05/09/2020:
     - Fiz efeito visual pra mudar a posição de uma bolinha com efeito de partículas de calda legal quando
     toca alguma nota
     TODOs:
-    - Verificar se o sistema é escalável para várias bolinhas
-    - Refatorar sistema de geração de melodia (acho que tá tudo no AudioManager)
+    ✔ Verificar se o sistema é escalável para várias bolinhas @done (06/09/2020 10:53:05)
+    ☐ Refatorar sistema de geração de melodia (acho que tá tudo no AudioManager)
+    ☐ Gravar melodias (distrinchar)
+    ☐ Fazer interface (distrinchar)
 
+Notas 06/09/2020:
+    > Verificar se o sistema é escalável para várias bolinhas @done (06/09/2020 10:53:05)
+    - Fiz uma refatoração separando providers, services e controllers pra permitir múltiplas instâncias de VisualNotes
+    - A classe VisualNote já existente foi renomeada para VisualKey e a VisualNote passou a ser a representação
+    das instâncias das bolinhas (as com particle effects)
 
 Alguma coisa de meados de 2017 (tentar reviver depois):
 AudioManager:

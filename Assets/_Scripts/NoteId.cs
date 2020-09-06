@@ -2,7 +2,7 @@
 
 public class NoteId : MonoBehaviour
 {
-	public VisualNote info;
+	public VisualKey info;
 	public Color pressedColor;
 	public Color idleColor;
 	public Color playingColor;
