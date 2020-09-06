@@ -49,7 +49,7 @@ public class VisualConstructor : MonoBehaviour
 
         CreateNewBranch();
 
-        for (int i = 0; i < audioManager.size; i++)
+        for (int i = 0; i < audioManager.melodyParameters.size; i++)
         {
             SpawnNewTime();
         }
@@ -141,7 +141,7 @@ public class VisualConstructor : MonoBehaviour
         }
 
         FindObjectOfType<CameraFollower>().followSensor = true;
-        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.melodyParameters.bpm), 0f);
     }
 
     public void Pause()
@@ -178,7 +178,7 @@ public class VisualConstructor : MonoBehaviour
         FindObjectOfType<CameraFollower>().GoHome();
         Destroy(currentCameraSensor);
         SpawnSensor();
-        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.bpm), 0f);
+        currentCameraSensor.GetComponent<Rigidbody2D>().velocity = new Vector2(imageLenght / (60f / audioManager.melodyParameters.bpm), 0f);
     }
 
     public void Reset()

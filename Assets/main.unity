@@ -498,7 +498,7 @@ Transform:
   - {fileID: 261519709}
   - {fileID: 1308387967}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!1 &50894978
 GameObject:
@@ -1888,7 +1888,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &316212784
 MonoBehaviour:
@@ -1936,21 +1936,26 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d1eaf9de140c10245b25204b210f6b22, type: 3}
   - {fileID: 8300000, guid: d571ec443fe5d4744b5ca4e4b4823f9b, type: 3}
   - {fileID: 8300000, guid: d2e3b2369e7753f4b86d87f91c193f77, type: 3}
-  bpm: 300
-  dimensions: 11
-  size: 8
-  seed: 20
-  octaves: 4
-  persistance: 0.5
-  lacunarity: 3
-  signature: 4
+  notes: []
+  scale: []
+  melodyParameters:
+    bpm: 300
+    signature: 4
+    size: 16
+    perlinParameters:
+      dimensions: 8
+      seed: 20
+      octaves: 3
+      persistance: 0.5
+      lacunarity: 3
+      range: 0
   scaleNotes:
   - C
   - D
   - E
   - G
   - A
-  transpose: 0
+  scaleIntervals: 0100000002000000030000000500000006000000
 --- !u!1 &318380924
 GameObject:
   m_ObjectHideFlags: 0
@@ -6868,7 +6873,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1273313901
 GameObject:
@@ -8884,7 +8889,7 @@ Transform:
   m_Children:
   - {fileID: 147806821}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1573381311
 GameObject:

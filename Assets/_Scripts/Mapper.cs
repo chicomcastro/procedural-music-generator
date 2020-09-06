@@ -48,4 +48,18 @@ public static class Mapper {
 
 		return scaleMap;
 	}
+
+	public static string[] GetNotesNamesFromIntervals(string tone, int[] scaleIntervals) {
+		// TODO implement tone
+
+		string[] notesNames = new string[7] {"C", "D", "E", "F", "G", "A", "B"};
+
+		List<string> result = new List<string>();
+		foreach (int i in scaleIntervals)
+		{
+			result.Add(notesNames[i - 1]);
+		}
+
+		return result.ToArray();
+	}
 }

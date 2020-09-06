@@ -48,9 +48,10 @@ public static class PositionProvider
         }
 
         // Get total of notes available (counting spaces between octaves and nonexisting tones as E# and B#)
+        int octaves = AudioManager.instance.melodyParameters.perlinParameters.octaves;
         double positionsCount = (
-            AudioManager.instance.octaves * 13 +
-            ((AudioManager.instance.octaves > 1) ? (AudioManager.instance.octaves - 1) : 0) +
+            octaves * 13 +
+            ((octaves > 1) ? (octaves - 1) : 0) +
             2
         );
         double distanceBetween = delta / positionsCount;

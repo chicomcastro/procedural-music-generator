@@ -6,12 +6,12 @@ public static class PerlinNoise {
 	const int NOTE = 0;
 	const int PAUSE = 1;
 
-	public static int[,] GenerateHeights(int width, int lenght, float scale, int range, int octaves, float persistance, float lacunarity)
+	public static int[,] GenerateHeights(int width, int length, float scale, int range, int octaves, float persistance, float lacunarity)
 	{
-		return GenerateHeights(width, lenght, scale, range, octaves, persistance, lacunarity, new Vector2(0f, 0f));
+		return GenerateHeights(width, length, scale, range, octaves, persistance, lacunarity, new Vector2(0f, 0f));
 	}
 
-	public static int[,] GenerateHeights(int width, int lenght, float scale, int range, int octaves, float persistance, float lacunarity, Vector2 offset)
+	public static int[,] GenerateHeights(int width, int length, float scale, int range, int octaves, float persistance, float lacunarity, Vector2 offset)
 	{
 		System.Random prng = new System.Random(Mathf.RoundToInt(scale));
 		Vector2[] octaveOffsets = new Vector2[octaves];
@@ -37,17 +37,17 @@ public static class PerlinNoise {
 		//	width++;
 		//}
 
-		//if (scale % lenght == 0)
+		//if (scale % length == 0)
 		//{
-		//	lenght++;
+		//	length++;
 		//}
 
 		// Create a new one
-		float[,] heights = new float[width * lenght, 2];
-		int[,] result = new int[width * lenght, 2];
+		float[,] heights = new float[width * length, 2];
+		int[,] result = new int[width * length, 2];
 
-		// For analisys purpose
-		float[,] heights2 = new float[width * lenght, 2];
+		// For analysis purpose
+		float[,] heights2 = new float[width * length, 2];
 
 		// For normalization purposes
 		float maxNoiseHeight = float.MinValue;
@@ -56,7 +56,7 @@ public static class PerlinNoise {
 		// And go pixel by pixel setting them up
 		for (int x = 0; x < width; x++)
 		{
-			for (int y = 0; y < lenght; y++)
+			for (int y = 0; y < length; y++)
 			{
 				float amplitude = 1;
 				float frequency = 1;
@@ -64,22 +64,6 @@ public static class PerlinNoise {
 
 				for (int i = 0; i < octaves; i++)
 				{
-					#region Old code
-					//// Predefine a new coordinate based on our "angular coefficient" (scale) and also our "linear coefficient" (offset)
-					//float xCoord = (float)x / width * scale + offsetX;
-					//float yCoord = (float)y / lenght * scale + offsetY;
-
-					//// Generate perlin noise based on this coordenates
-					//float sample = Mathf.PerlinNoise(xCoord, yCoord);
-
-					//// We wanna fill them with something from perlin noise, then let call this function
-					//heights[lenght * x + y, NOTE] = (int)Mathf.Round(sample * (range + 1));
-					//heights[lenght * x + y, PAUSE] = (int)Mathf.Round(sample * 4); // TIME SIGNATURE = 4/4
-
-					//// Get original noise values
-					//heights2[lenght * x + y, NOTE] = sample;
-#endregion
-
 					float sampleX = x / scale * frequency + octaveOffsets[i].x;
 					float sampleY = y / scale * frequency + octaveOffsets[i].y;
 
@@ -99,22 +83,22 @@ public static class PerlinNoise {
 					minNoiseHeight = noiseHeight;
 				}
 				
-				heights[lenght * x + y, NOTE] = noiseHeight;
-				heights[lenght * x + y, PAUSE] = noiseHeight; // TIME SIGNATURE = 4/4
+				heights[length * x + y, NOTE] = noiseHeight;
+				heights[length * x + y, PAUSE] = noiseHeight; // TIME SIGNATURE = 4/4
 				
-				heights2[lenght * x + y, NOTE] = noiseHeight;
+				heights2[length * x + y, NOTE] = noiseHeight;
 			}
 		}
 
-		for (int y = 0; y < lenght; y++)
+		for (int y = 0; y < length; y++)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				heights[lenght * x + y, NOTE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights[lenght * x + y, NOTE]);
-				result[lenght * x + y, NOTE] = Mathf.RoundToInt(heights[lenght * x + y, NOTE] * range);
-				heights[lenght * x + y, PAUSE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights[lenght * x + y, PAUSE]);
-				result[lenght * x + y, PAUSE] = Mathf.RoundToInt(heights[lenght * x + y, PAUSE] * 4);
-				heights2[lenght * x + y, NOTE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights2[lenght * x + y, NOTE]);
+				heights[length * x + y, NOTE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights[length * x + y, NOTE]);
+				result[length * x + y, NOTE] = Mathf.RoundToInt(heights[length * x + y, NOTE] * range);
+				heights[length * x + y, PAUSE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights[length * x + y, PAUSE]);
+				result[length * x + y, PAUSE] = Mathf.RoundToInt(heights[length * x + y, PAUSE] * 4);
+				heights2[length * x + y, NOTE] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights2[length * x + y, NOTE]);
 			}
 		}
 

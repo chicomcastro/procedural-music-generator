@@ -44,7 +44,7 @@ public class CameraFollower : MonoBehaviour {
 	{
 		if (followSensor)
 		{
-			moveToSpeed = 60f / audioManager.bpm;
+			moveToSpeed = 60f / audioManager.melodyParameters.bpm;
 
 			if (shouldFollowSensor)
 			{

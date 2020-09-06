@@ -337,14 +337,17 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d1eaf9de140c10245b25204b210f6b22, type: 3}
   - {fileID: 8300000, guid: d571ec443fe5d4744b5ca4e4b4823f9b, type: 3}
   - {fileID: 8300000, guid: d2e3b2369e7753f4b86d87f91c193f77, type: 3}
-  bpm: 300
-  dimensions: 11
-  size: 8
-  seed: 20
-  octaves: 1
-  persistance: 0.5
-  lacunarity: 3
-  signature: 4
+  melodyParameters:
+    bpm: 120
+    signature: 4
+    size: 8
+    perlinParameters:
+      dimensions: 4
+      seed: 10
+      octaves: 1
+      persistance: 1
+      lacunarity: 1
+      range: 0
   scaleNotes:
   - C
   - D

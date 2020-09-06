@@ -3,303 +3,232 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 
-[System.Serializable]
-public class UserInterface
+public class AudioManager : MonoBehaviour
 {
-	public Slider persistanceInput;
-	public Text bpmInput, dimensionInput, seedInput, octaveInput, lacunarityInput, sizeInput;
-	public Toggle loopToggle;
-}
+    #region Not important for live performance :)
+    [Header("User interface")]
+    public UserInterface publicReferences = new UserInterface();
 
-public class AudioManager : MonoBehaviour {
+    [Space]
+    [Header("Our list of sounds")]
+    public AudioClip[] audioSamples;
+    public List<Note> notes = new List<Note>();
+    public List<Note> scale = new List<Note>();
+    private float time;
 
-	#region Not important for live performance :)
-	[Header("User interface")]
-	public UserInterface publicReferences = new UserInterface();
+    private VisualConstructor visualConstructor;
+    #endregion
 
-	[Space]
-	[Header("Our list of sounds")]
-	public AudioClip[] audioSamples;
-	public List<Note> notes = new List<Note>();
-	private List<Note> scale = new List<Note>();
-	private float time;
+    [Space]
+    [Header("Melody parameters")]
+    public MelodyParameters melodyParameters;
 
-	private VisualConstructor vs;
+    // Our reference to an audio manager
+    public static AudioManager instance;
 
-	const int NOTE = 0;
-	const int PAUSE = 1;
+    public string[] scaleNotes;
+    public int[] scaleIntervals = new int[5] { 1, 2, 3, 5, 6 };
 
-	public int[,] noiseMap;
-	#endregion
+    public List<int[]> melodies = new List<int[]>();
 
-	[Space]
-	[Header("Melody parameters")]
-	public float bpm = 120f;
-	public int dimensions = 4;
-	public int size = 8;
-	public int seed = 10;
-	public int octaves = 1;
-	[Range(0, 1)]
-	public float persistance = 1f;
-	public float lacunarity = 1f;
+    int currentTempo = 1;
 
-	public int signature = 4;
+    private void Awake()
+    {
+        // Is instance is empty, fill it up with this gameobject and others like him will be destroyed
+        if (instance == null)
+            instance = this;
+        else
+        {
+            Destroy(this.gameObject);
+            return;
+        }
 
-	// Our reference to an audio manager
-	public static AudioManager instance;
+        // And we dont wanna destroy this game object on load scene
+        DontDestroyOnLoad(gameObject);
 
-	public string[] scaleNotes = new string[] { "C", "D", "E", "G", "A" };
+        // Map all our samples to notes
+        notes = Mapper.MapAudioClips(audioSamples);
+		scaleNotes = Mapper.GetNotesNamesFromIntervals("C", scaleIntervals);
 
-	private void Awake() {
+        // Filter all our registered notes (from samples) to only notes in our scale
+        scale = Mapper.GetScale(notes, scaleNotes);
+        melodyParameters.perlinParameters.range = scale.Count - 1;  // unique dinamic value (depends on samples and scale)
 
-		// Is instance is empty, fill it up with this gameobject and others like him will be destroyed
-		if (instance == null)
-			instance = this;
-		else {
-			Destroy(this.gameObject);
-			return;
-		}
+        visualConstructor = FindObjectOfType<VisualConstructor>();
+    }
 
-		// And we dont wanna destroy this game object on load scene
-		DontDestroyOnLoad(gameObject);
+    private void Start()
+    {
+        SetupParameters();
+    }
 
-		notes = Mapper.MapAudioClips(audioSamples);
+    public void GenerateMelody()
+    {
+        int[] melody = MelodyProvider.GenerateMelodyForScale(
+            melodyParameters.perlinParameters,
+			notes,
+            scale
+        );
 
-		scale = Mapper.GetScale(notes, scaleNotes);
+        // Visual feedback
+        if (visualConstructor != null)
+        {
+            visualConstructor.ApplyMelody(melody);
+            return;
+        }
 
-		vs = FindObjectOfType<VisualConstructor>();
-	}
-	
-	public void GenerateMelody () // When Play button is hitted, this method is called
-	{
-		noiseMap = GetNoiseMap();
+        melodies.Add(melody);
+    }
 
-		int[] aux = new int[noiseMap.GetLength(0)];
+    private void PlayMelody(int index = 0)
+    {
+        if (index < 0 || index > melodies.Count - 1)
+        {
+            index = 0;
+        }
 
-		for (int i = 0; i < aux.Length; i++)
-		{
-			aux[i] = noiseMap[i, NOTE];
-		}
+        int[] melody = melodies[index];
 
-		// Truncate music tempo
-		// Divide music (structuration)
-		// Get harmony
-		// StartCoroutine (GenerateHarmony())
+        // Sound feedback
+        StartCoroutine(PlayMusic(melody));
+    }
 
-		int[] melodyHeights = ConvertNoiseMapIntoScaleInfo(aux);
+    IEnumerator PlayMusic(int[] melody)
+    {
+        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
-		if (vs != null)
-		{
-			vs.ApplyMelody(melodyHeights);
-			return;
-		}
+        yield return new WaitUntil(() => currentTempo == 1);
 
-		// I've generated, now I must store or play this melody
-		StartCoroutine(PlayMusic(melodyHeights));
+        while (true)
+        {
+            currentTempo = 1;
+            for (int i = 0; i < melodyParameters.size * melodyParameters.signature; i++)
+            {
+                audioSource.clip = notes[melody[i]].clip;
 
-		// This part is not necessary right now, but it's good to keep this peace of code for future
-		/*
-		List<AudioClip> clipsForMerge = new List<AudioClip>();
-		foreach (int i in melodyHeights)
-		{
-			clipsForMerge.Add(notes[i].clip);
-		}
+                // Fazer lógica de não tocar caso seja repetido
 
-		AudioClip mergedClip = Combine(clipsForMerge.ToArray());
-		AudioSource aS = gameObject.AddComponent<AudioSource>();
-		aS.clip = mergedClip;
-		aS.Play();
-		*/
-	}
+                audioSource.Play();
+                yield return new WaitForSeconds(60f / melodyParameters.bpm);
 
-	private int[] ConvertNoiseMapIntoScaleInfo(int[] aux)
-	{
-		Note[] melody = new Note[aux.Length];
+                currentTempo++;
+            }
+        }
+    }
 
-		for (int i = 0; i < aux.Length; i++)
-		{
-			melody[i] = scale[aux[i]];
-		}
+    void OnValidate()
+    {
+        // Music
+        if (melodyParameters.bpm < 60)
+        {
+            melodyParameters.bpm = 60;
+        }
+        if (melodyParameters.signature < 2)
+        {
+            melodyParameters.signature = 2;
+        }
+        // Perlin
+        if (melodyParameters.perlinParameters.lacunarity < 1)
+        {
+            melodyParameters.perlinParameters.lacunarity = 1;
+        }
+        if (melodyParameters.perlinParameters.octaves < 1)
+        {
+            melodyParameters.perlinParameters.octaves = 1;
+        }
+    }
 
-		int[] result = new int[aux.Length];
-		int j = 0;
+    #region Encapsuling stuff
+    private void SetupParameters()
+    {
+        publicReferences.bpmInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.bpm.ToString();
+        publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.dimensions.ToString();
+        publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.lacunarity.ToString();
+        publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.octaves.ToString();
+        publicReferences.persistanceInput.value = melodyParameters.perlinParameters.persistance;
+        publicReferences.seedInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.seed.ToString();
+        publicReferences.sizeInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.size.ToString();
+    }
+    public void SetBPM()
+    {
+        int result;
+        if (int.TryParse(publicReferences.bpmInput.text, out result))
+        {
+            melodyParameters.bpm = result;
+        }
+    }
 
-		foreach (Note n in melody)
-		{
-			result[j] = notes.FindIndex(note => note == n);
-			j++;
-		}
+    public void SetSize()
+    {
+        int result;
+        if (int.TryParse(publicReferences.sizeInput.text, out result))
+        {
+            melodyParameters.size = result;
+        }
+    }
 
-		return result;
-	}
+    public void SetSeed()
+    {
+        int result;
+        if (int.TryParse(publicReferences.seedInput.text, out result))
+        {
+            melodyParameters.perlinParameters.seed = result;
+        }
+    }
 
-	private int[,] GetNoiseMap()
-	{
-		return PerlinNoise.GenerateHeights(dimensions, dimensions, seed, scale.Count - 1, octaves, persistance, lacunarity);
-	}
-	int currentTempo = 1;
-	IEnumerator PlayMusic(int[] melody)
-	{
-		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+    public void SetOctave()
+    {
+        int result;
+        if (int.TryParse(publicReferences.octaveInput.text, out result))
+        {
+            melodyParameters.perlinParameters.octaves = result;
+        }
+    }
 
-		yield return new WaitUntil(() => currentTempo == 1);
+    public void SetLacunarity()
+    {
+        int result;
+        if (int.TryParse(publicReferences.lacunarityInput.text, out result))
+        {
+            melodyParameters.perlinParameters.lacunarity = result;
+        }
+    }
 
-		while (true)
-		{
-			currentTempo = 1;
-			for (int i = 0; i < size * 4; i++)
-			{
-				audioSource.clip = notes[melody[i]].clip;
+    public void SetPersistance()
+    {
+        melodyParameters.perlinParameters.persistance = publicReferences.persistanceInput.value;
+    }
 
-				// Fazer lógica de não tocar caso seja repetido
-				
-				audioSource.Play();
-				yield return new WaitForSeconds(60f / bpm);
+    public void SetDimensions()
+    {
+        int result;
+        if (int.TryParse(publicReferences.dimensionInput.text, out result))
+        {
+            melodyParameters.perlinParameters.dimensions = result;
+        }
+    }
 
-				currentTempo++;
-			}
-		}
-	}
+    public int GetNotesRange()
+    {
+        return audioSamples.Length;
+    }
 
-	/* Combine audio clips method
-	private static AudioClip Combine(params AudioClip[] clips)
-	{
-		if (clips == null || clips.Length == 0)
-			return null;
+    public int GetMusicLength()
+    {
+        return melodyParameters.perlinParameters.dimensions * melodyParameters.perlinParameters.dimensions;
+    }
 
-		int length = 0;
-		for (int i = 0; i < clips.Length; i++)
-		{
-			if (clips[i] == null)
-				continue;
+    public int GetMusicSize()
+    {
+        return melodyParameters.perlinParameters.dimensions;
+    }
 
-			length += clips[i].samples * clips[i].channels;
-		}
-
-		float[] data = new float[length];
-		length = 0;
-		for (int i = 0; i < clips.Length; i++)
-		{
-			if (clips[i] == null)
-				continue;
-
-			float[] buffer = new float[clips[i].samples * clips[i].channels];
-			clips[i].GetData(buffer, 0);
-			//System.Buffer.BlockCopy(buffer, 0, data, length, buffer.Length);
-			buffer.CopyTo(data, length);
-			length += buffer.Length;
-		}
-
-		if (length == 0)
-			return null;
-
-		AudioClip result = AudioClip.Create("Combine", length / 2, 2, 44100, false, false);
-		result.SetData(data, 0);
-
-		return result;
-	}
-	*/
-
-	void OnValidate()
-	{
-		if (bpm < 60)
-		{
-			bpm = 60;
-		}
-		if (lacunarity < 1)
-		{
-			lacunarity = 1;
-		}
-		if (octaves < 1)
-		{
-			octaves = 1;
-		}
-		if (signature < 2)
-		{
-			signature = 2;
-		}
-	}
-	
-	#region Encapsuling stuff
-	public void SetBPM()
-	{
-		int result;
-		if (int.TryParse(publicReferences.bpmInput.text, out result))
-		{
-			bpm = result;
-		}
-	}
-
-	public void SetSeed()
-	{
-		int result;
-		if (int.TryParse(publicReferences.seedInput.text, out result))
-		{
-			seed = result;
-		}
-	}
-
-	public void SetOctave()
-	{
-		int result;
-		if (int.TryParse(publicReferences.octaveInput.text, out result))
-		{
-			octaves = result;
-		}
-	}
-
-	public void SetLacunarity()
-	{
-		int result;
-		if (int.TryParse(publicReferences.lacunarityInput.text, out result))
-		{
-			lacunarity = result;
-		}
-	}
-
-	public void SetPersistance()
-	{
-		persistance = publicReferences.persistanceInput.value;
-	}
-
-	public void SetDimensions()
-	{
-		int result;
-		if (int.TryParse(publicReferences.dimensionInput.text, out result))
-		{
-			dimensions = result;
-		}
-	}
-
-	public void SetSize()
-	{
-		int result;
-		if (int.TryParse(publicReferences.sizeInput.text, out result))
-		{
-			size = result;
-		}
-	}
-
-	public int GetNotesRange()
-	{
-		return audioSamples.Length;
-	}
-
-	public int GetMusicLength()
-	{
-		return dimensions * dimensions;
-	}
-
-	public int GetMusicSize()
-	{
-		return dimensions;
-	}
-
-	public int GetMusicArmature()
-	{
-		return signature;
-	}
-	#endregion
+    public int GetMusicArmature()
+    {
+        return melodyParameters.signature;
+    }
+    #endregion
 
 }
 /* Prioridades:
