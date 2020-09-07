@@ -10,7 +10,11 @@ public class LivePlayer : MonoBehaviour
 	#region Live keyboard
 	public MusicPlayer musicPlayer;
 	public float transpose = 0;  // transpose in semitones
-    public int octave = 2;
+    public int octave;
+
+	private void Start() {
+		octave = musicPlayer.baseOctave;
+	}
 
 	void Update()
 	{
@@ -31,14 +35,15 @@ public class LivePlayer : MonoBehaviour
 		if (Input.GetKeyDown("o")) notes.Add(13); // C#	
 		if (Input.GetKeyDown("l")) notes.Add(14); // D
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) octave += -1;
-        if (Input.GetKeyDown(KeyCode.RightArrow)) octave += 1;
+        if (Input.GetKeyDown(KeyCode.UpArrow)) octave += 1;
+        if (Input.GetKeyDown(KeyCode.DownArrow)) octave += -1;
 
         // if some key pressed...
 		if (notes.Count > 0)
 		{
             foreach(int note in notes) {
-				musicPlayer.PlayNote((note + transpose +  (octave - 2) * 12));
+				// musicPlayer.PlayNote(note + transpose, octave);
+				musicPlayer.PlayChord(note + transpose, octave, ChordType.MINOR);
 
                 // Control the position of the main VisualNote instantiated
                 PositionController.MoveNoteToPosition(VisualNote.main, note);

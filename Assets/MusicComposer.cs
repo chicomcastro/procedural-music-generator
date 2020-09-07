@@ -4,15 +4,13 @@ using UnityEngine;
 
 public class MusicComposer : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private void Start() {
+        StartCoroutine(PlayMusic());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    IEnumerator PlayMusic() {
+        // Wrote here your music
+        // TODO turn this visual
+        yield return null;
     }
 }
