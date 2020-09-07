@@ -67,8 +67,8 @@ namespace PMM.Demo
 
         public void GenerateMelody()
         {
-            int[] melody = MelodyProvider.GenerateMelodyForScale(
-                melodyParameters.perlinParameters,
+            int[] melody = Mapper.GetNotesFromMelody(
+                MelodyProvider.GenerateMelody(melodyParameters.perlinParameters),
                 notes,
                 scale
             );

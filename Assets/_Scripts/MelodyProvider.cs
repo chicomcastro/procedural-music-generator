@@ -4,44 +4,13 @@ using UnityEngine;
 
 public static class MelodyProvider
 {
-    public static int[] GenerateMelodyForScale(PerlinParameters perlinParameters, List<Note> notes, List<Note> scale)
-    {
-        // Generate a melody for perlin parameters
-        int[] melody = GenerateMelody(perlinParameters);
-
-        // TODO:
-        // Truncate music tempo
-        // Divide music (structuration)
-        // Get harmony
-        // StartCoroutine (GenerateHarmony())
-
-        // Apply scale filter (convert melody notes based on passed scale)
-        int[] melodyNotes = ApplyScaleToMelody(melody, notes, scale);
-
-        return melodyNotes;
-    }
-
-    private static int[] ApplyScaleToMelody(int[] melody, List<Note> allSamples, List<Note> scaleNotes)
-    {
-        // Get notes for our melody based on scale
-        Note[] melodyNotes = new Note[melody.Length];
-
-        for (int i = 0; i < melody.Length; i++)
+    public static void PrintMelodyData(int[] melody) {
+        string a = "";
+        foreach (int note in melody)
         {
-            melodyNotes[i] = scaleNotes[melody[i]];
+            a += ", " + note.ToString();
         }
-
-        // Find index of melody on original Note list to play
-        int[] result = new int[melody.Length];
-        int j = 0;
-
-        foreach (Note n in melodyNotes)
-        {
-            result[j] = System.Array.FindIndex(allSamples.ToArray(), note => note == n);
-            j++;
-        }
-
-        return result;
+        Debug.Log(a);
     }
 
     public static int[] GenerateMelody(PerlinParameters perlinParameters) {
