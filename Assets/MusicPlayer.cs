@@ -40,11 +40,7 @@ public class MusicPlayer : MonoBehaviour
         float durationInBeats = arpeggio.durationInCompasses * MusicParameters.instance.signature;   // Duration of arpeggio
         float timeBeat = 60f / MusicParameters.instance.bpm;           // Time between two beats
         float timeInterval = timeBeat * durationInBeats / notesQuant;  // Time between two notes in this arpeggio
-// Debug.Log(notesQuant);
-// Debug.Log(arpeggio.durationInCompasses);
-// Debug.Log(MusicParameters.instance.signature);
-// Debug.Log(timeBeat);
-// Debug.Log(timeInterval);
+        
         for (int i = 0; i < notesQuant; i++)
         {
             PlayNote(notesToPlay[i] + chord.intervalFromBaseNote, chord.octave);
@@ -99,9 +95,6 @@ public class Arpeggio
         {
             // Default duration is the one that corresponds to 1 beat per chord note
             durationInCompasses = ChordDictionary.chords[chord.chordType].Length * 1f / MusicParameters.instance.signature;
-Debug.Log(ChordDictionary.chords[chord.chordType].Length);
-Debug.Log(MusicParameters.instance.signature);
-Debug.Log(durationInCompasses);
         }
     }
 
