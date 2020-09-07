@@ -1,29 +1,32 @@
 ﻿using UnityEngine;
 
-public class NoteDetector : MonoBehaviour
+namespace PMM.Demo
 {
-	void OnTriggerEnter2D(Collider2D other)
-	{
-		NoteId nid = other.gameObject.GetComponent<NoteId>();
-		
-		if (nid == null)
-			return;
+    public class NoteDetector : MonoBehaviour
+    {
+        void OnTriggerEnter2D(Collider2D other)
+        {
+            NoteId nid = other.gameObject.GetComponent<NoteId>();
 
-		if (!nid.info.isActive)
-			return;
+            if (nid == null)
+                return;
 
-		nid.Play();
-	}
+            if (!nid.info.isActive)
+                return;
 
-	void OnTriggerExit2D(Collider2D other)
-	{
-		NoteId nid = other.gameObject.GetComponent<NoteId>();
-		if (nid == null)
-			return;
+            nid.Play();
+        }
 
-		if (nid.info.isActive)
-		{
-			nid.TurnOff();
-		}
-	}
+        void OnTriggerExit2D(Collider2D other)
+        {
+            NoteId nid = other.gameObject.GetComponent<NoteId>();
+            if (nid == null)
+                return;
+
+            if (nid.info.isActive)
+            {
+                nid.TurnOff();
+            }
+        }
+    }
 }

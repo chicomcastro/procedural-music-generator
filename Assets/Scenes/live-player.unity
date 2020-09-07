@@ -253,7 +253,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 316212783}
-  - component: {fileID: 316212784}
   - component: {fileID: 316212782}
   m_Layer: 0
   m_Name: AudioManager
@@ -291,69 +290,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &316212784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 316212781}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3f45ad876916e942a24827d94a5877c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  publicReferences:
-    persistanceInput: {fileID: 0}
-    bpmInput: {fileID: 0}
-    dimensionInput: {fileID: 0}
-    seedInput: {fileID: 0}
-    octaveInput: {fileID: 0}
-    lacunarityInput: {fileID: 0}
-    sizeInput: {fileID: 0}
-    loopToggle: {fileID: 0}
-  audioSamples:
-  - {fileID: 8300000, guid: 7946657ddf9ec664998835ef2d206ce5, type: 3}
-  - {fileID: 8300000, guid: 2e329b1f5b9188442ad810e889cb48d4, type: 3}
-  - {fileID: 8300000, guid: 8077edcb8d4faca40b0036facbf1b776, type: 3}
-  - {fileID: 8300000, guid: 4fb4c67bfef2f8040b5f6d2d3797e7ee, type: 3}
-  - {fileID: 8300000, guid: 28196a45af1a17840a4ffdd718fbeb9d, type: 3}
-  - {fileID: 8300000, guid: 791f00166f5589d41b507508a5787c32, type: 3}
-  - {fileID: 8300000, guid: 04fce5c7352306d47bd8da26820bb30a, type: 3}
-  - {fileID: 8300000, guid: 7544063e8ac44d948a434cebb6fa3039, type: 3}
-  - {fileID: 8300000, guid: 3788e4a6d5ba47b4e972d0ae7b69fb55, type: 3}
-  - {fileID: 8300000, guid: 5551f6732b0c4404e83b4dd652b3d226, type: 3}
-  - {fileID: 8300000, guid: 53c00095982f6cc4bae0ab239b402941, type: 3}
-  - {fileID: 8300000, guid: 6fd8a8c736fc52e4fb432ceaee02aac0, type: 3}
-  - {fileID: 8300000, guid: c7fd928fec0cb1442876136cdfcb6c2e, type: 3}
-  - {fileID: 8300000, guid: 7ab707a3d17bade4f8a84677b32216a9, type: 3}
-  - {fileID: 8300000, guid: ffbc46fd36191014da93f7b832ebede6, type: 3}
-  - {fileID: 8300000, guid: c338f41c8bf43ab49aa89ac60be3d587, type: 3}
-  - {fileID: 8300000, guid: f290e328ff398734f9c8c8663b17af77, type: 3}
-  - {fileID: 8300000, guid: 03ca5da422c4acd43ae03b67c77b2c19, type: 3}
-  - {fileID: 8300000, guid: 5cd1f962b5d214644bdafa2b8c3c79d7, type: 3}
-  - {fileID: 8300000, guid: c562877a26b2be34f9576ea9055ff967, type: 3}
-  - {fileID: 8300000, guid: 900aa612cece18e49955b0c130ed3345, type: 3}
-  - {fileID: 8300000, guid: d1eaf9de140c10245b25204b210f6b22, type: 3}
-  - {fileID: 8300000, guid: d571ec443fe5d4744b5ca4e4b4823f9b, type: 3}
-  - {fileID: 8300000, guid: d2e3b2369e7753f4b86d87f91c193f77, type: 3}
-  melodyParameters:
-    bpm: 120
-    signature: 4
-    size: 8
-    perlinParameters:
-      dimensions: 4
-      seed: 10
-      octaves: 1
-      persistance: 1
-      lacunarity: 1
-      range: 0
-  scaleNotes:
-  - C
-  - D
-  - E
-  - G
-  - A
 --- !u!1 &459458646 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2060836302521749881, guid: da2627534d57f014085897f354f182b8,

@@ -9,13 +9,14 @@ public static class MelodyProvider
         // Generate a melody for perlin parameter
         int[] melody = GenerateMelody(perlinParameters);
 
+        // TODO:
         // Truncate music tempo
         // Divide music (structuration)
         // Get harmony
         // StartCoroutine (GenerateHarmony())
 
         // Apply scale filter (convert melody notes based on passed scale)
-        int[] melodyNotes = ConvertNoiseMapIntoNotes(melody, notes, scale);
+        int[] melodyNotes = ApplyScaleToMelody(melody, notes, scale);
 
         return melodyNotes;
     }
@@ -48,8 +49,9 @@ public static class MelodyProvider
         return PerlinNoise.GenerateHeights(dimensions, dimensions, seed, range, octaves, persistance, lacunarity);
     }
 
-    private static int[] ConvertNoiseMapIntoNotes(int[] melody, List<Note> notes, List<Note> scale)
+    private static int[] ApplyScaleToMelody(int[] melody, List<Note> notes, List<Note> scale)
     {
+        // Get notes for our melody based on scale
         Note[] melodyNotes = new Note[melody.Length];
 
         for (int i = 0; i < melody.Length; i++)
@@ -57,6 +59,7 @@ public static class MelodyProvider
             melodyNotes[i] = scale[melody[i]];
         }
 
+        // Find index of melody on original Note list to play
         int[] result = new int[melody.Length];
         int j = 0;
 

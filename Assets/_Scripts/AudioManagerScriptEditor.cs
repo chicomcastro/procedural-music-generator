@@ -1,23 +1,25 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(AudioManager))]
-public class AudioManagerScriptEditor : Editor
+namespace PMM.Demo
 {
-
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(AudioManager))]
+    public class AudioManagerScriptEditor : Editor
     {
-        DrawDefaultInspector();
-
-        AudioManager myScript = (AudioManager)target;
-        GUILayout.Space(10);
-
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Generate Melody"))
+        public override void OnInspectorGUI()
         {
-            myScript.GenerateMelody();
-        }
-        GUILayout.EndHorizontal();
-    }
+            DrawDefaultInspector();
 
+            AudioManager myScript = (AudioManager)target;
+            GUILayout.Space(10);
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Generate Melody"))
+            {
+                myScript.GenerateMelody();
+            }
+            GUILayout.EndHorizontal();
+        }
+
+    }
 }

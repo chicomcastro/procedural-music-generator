@@ -3,232 +3,236 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class AudioManager : MonoBehaviour
+namespace PMM.Demo
 {
-    #region Not important for live performance :)
-    [Header("User interface")]
-    public UserInterface publicReferences = new UserInterface();
-
-    [Space]
-    [Header("Our list of sounds")]
-    public AudioClip[] audioSamples;
-    public List<Note> notes = new List<Note>();
-    public List<Note> scale = new List<Note>();
-    private float time;
-
-    private VisualConstructor visualConstructor;
-    #endregion
-
-    [Space]
-    [Header("Melody parameters")]
-    public MelodyParameters melodyParameters;
-
-    // Our reference to an audio manager
-    public static AudioManager instance;
-
-    public string[] scaleNotes;
-    public int[] scaleIntervals = new int[5] { 1, 2, 3, 5, 6 };
-
-    public List<int[]> melodies = new List<int[]>();
-
-    int currentTempo = 1;
-
-    private void Awake()
+    public class AudioManager : MonoBehaviour
     {
-        // Is instance is empty, fill it up with this gameobject and others like him will be destroyed
-        if (instance == null)
-            instance = this;
-        else
+        #region Not important for live performance :)
+        [Header("User interface")]
+        public UserInterface publicReferences = new UserInterface();
+
+        [Space]
+        [Header("Our list of sounds")]
+        public AudioClip[] audioSamples;
+        public List<Note> notes = new List<Note>();
+        public List<Note> scale = new List<Note>();
+        private float time;
+
+        private VisualConstructor visualConstructor;
+        #endregion
+
+        [Space]
+        [Header("Melody parameters")]
+        public MelodyParameters melodyParameters;
+
+        // Our reference to an audio manager
+        public static AudioManager instance;
+
+        public string[] scaleNotes;
+        public int[] scaleIntervals = new int[5] { 1, 2, 3, 5, 6 };
+
+        public List<int[]> melodies = new List<int[]>();
+
+        int currentTempo = 1;
+
+        private void Awake()
         {
-            Destroy(this.gameObject);
-            return;
-        }
-
-        // And we dont wanna destroy this game object on load scene
-        DontDestroyOnLoad(gameObject);
-
-        // Map all our samples to notes
-        notes = Mapper.MapAudioClips(audioSamples);
-		scaleNotes = Mapper.GetNotesNamesFromIntervals("C", scaleIntervals);
-
-        // Filter all our registered notes (from samples) to only notes in our scale
-        scale = Mapper.GetScale(notes, scaleNotes);
-        melodyParameters.perlinParameters.range = scale.Count - 1;  // unique dinamic value (depends on samples and scale)
-
-        visualConstructor = FindObjectOfType<VisualConstructor>();
-    }
-
-    private void Start()
-    {
-        SetupParameters();
-    }
-
-    public void GenerateMelody()
-    {
-        int[] melody = MelodyProvider.GenerateMelodyForScale(
-            melodyParameters.perlinParameters,
-			notes,
-            scale
-        );
-
-        // Visual feedback
-        if (visualConstructor != null)
-        {
-            visualConstructor.ApplyMelody(melody);
-            return;
-        }
-
-        melodies.Add(melody);
-    }
-
-    private void PlayMelody(int index = 0)
-    {
-        if (index < 0 || index > melodies.Count - 1)
-        {
-            index = 0;
-        }
-
-        int[] melody = melodies[index];
-
-        // Sound feedback
-        StartCoroutine(PlayMusic(melody));
-    }
-
-    IEnumerator PlayMusic(int[] melody)
-    {
-        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-
-        yield return new WaitUntil(() => currentTempo == 1);
-
-        while (true)
-        {
-            currentTempo = 1;
-            for (int i = 0; i < melodyParameters.size * melodyParameters.signature; i++)
+            // Is instance is empty, fill it up with this gameobject and others like him will be destroyed
+            if (instance == null)
+                instance = this;
+            else
             {
-                audioSource.clip = notes[melody[i]].clip;
+                Destroy(this.gameObject);
+                return;
+            }
 
-                // Fazer lógica de não tocar caso seja repetido
+            // And we dont wanna destroy this game object on load scene
+            DontDestroyOnLoad(gameObject);
 
-                audioSource.Play();
-                yield return new WaitForSeconds(60f / melodyParameters.bpm);
+            // Map all our samples to notes
+            notes = Mapper.MapAudioClips(audioSamples);
+            scaleNotes = Mapper.GetNotesNamesFromIntervals("C", scaleIntervals);
 
-                currentTempo++;
+            // Filter all our registered notes (from samples) to only notes in our scale
+            scale = Mapper.GetScale(notes, scaleNotes);
+            melodyParameters.perlinParameters.range = scale.Count - 1;  // unique dinamic value (depends on samples and scale)
+
+            visualConstructor = FindObjectOfType<VisualConstructor>();
+        }
+
+        private void Start()
+        {
+            SetupParameters();
+        }
+
+        public void GenerateMelody()
+        {
+            int[] melody = MelodyProvider.GenerateMelodyForScale(
+                melodyParameters.perlinParameters,
+                notes,
+                scale
+            );
+
+            // Visual feedback
+            if (visualConstructor != null)
+            {
+                visualConstructor.ApplyMelody(melody);
+                return;
+            }
+
+            melodies.Add(melody);
+        }
+
+        private void PlayMelody(int index = 0)
+        {
+            if (index < 0 || index > melodies.Count - 1)
+            {
+                index = 0;
+            }
+
+            int[] melody = melodies[index];
+
+            // Sound feedback
+            StartCoroutine(PlayMusic(melody));
+        }
+
+        IEnumerator PlayMusic(int[] melody)
+        {
+            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+
+            yield return new WaitUntil(() => currentTempo == 1);
+
+            while (true)
+            {
+                currentTempo = 1;
+                for (int i = 0; i < melodyParameters.size * melodyParameters.signature; i++)
+                {
+                    audioSource.clip = notes[melody[i]].clip;
+
+                    // Fazer lógica de não tocar caso seja repetido
+
+                    audioSource.Play();
+                    yield return new WaitForSeconds(60f / melodyParameters.bpm);
+
+                    currentTempo++;
+                }
             }
         }
-    }
 
-    void OnValidate()
-    {
-        // Music
-        if (melodyParameters.bpm < 60)
+        void OnValidate()
         {
-            melodyParameters.bpm = 60;
+            // Music
+            if (melodyParameters.bpm < 60)
+            {
+                melodyParameters.bpm = 60;
+            }
+            if (melodyParameters.signature < 2)
+            {
+                melodyParameters.signature = 2;
+            }
+            // Perlin
+            if (melodyParameters.perlinParameters.lacunarity < 1)
+            {
+                melodyParameters.perlinParameters.lacunarity = 1;
+            }
+            if (melodyParameters.perlinParameters.octaves < 1)
+            {
+                melodyParameters.perlinParameters.octaves = 1;
+            }
         }
-        if (melodyParameters.signature < 2)
+
+        #region Encapsuling stuff
+        private void SetupParameters()
         {
-            melodyParameters.signature = 2;
+            publicReferences.bpmInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.bpm.ToString();
+            publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.dimensions.ToString();
+            publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.lacunarity.ToString();
+            publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.octaves.ToString();
+            publicReferences.persistanceInput.value = melodyParameters.perlinParameters.persistance;
+            publicReferences.seedInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.seed.ToString();
+            publicReferences.sizeInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.size.ToString();
         }
-        // Perlin
-        if (melodyParameters.perlinParameters.lacunarity < 1)
+        public void SetBPM()
         {
-            melodyParameters.perlinParameters.lacunarity = 1;
+            int result;
+            if (int.TryParse(publicReferences.bpmInput.text, out result))
+            {
+                melodyParameters.bpm = result;
+            }
         }
-        if (melodyParameters.perlinParameters.octaves < 1)
+
+        public void SetSize()
         {
-            melodyParameters.perlinParameters.octaves = 1;
+            int result;
+            if (int.TryParse(publicReferences.sizeInput.text, out result))
+            {
+                melodyParameters.size = result;
+            }
         }
-    }
 
-    #region Encapsuling stuff
-    private void SetupParameters()
-    {
-        publicReferences.bpmInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.bpm.ToString();
-        publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.dimensions.ToString();
-        publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.lacunarity.ToString();
-        publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.octaves.ToString();
-        publicReferences.persistanceInput.value = melodyParameters.perlinParameters.persistance;
-        publicReferences.seedInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.seed.ToString();
-        publicReferences.sizeInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.size.ToString();
-    }
-    public void SetBPM()
-    {
-        int result;
-        if (int.TryParse(publicReferences.bpmInput.text, out result))
+        public void SetSeed()
         {
-            melodyParameters.bpm = result;
+            int result;
+            if (int.TryParse(publicReferences.seedInput.text, out result))
+            {
+                melodyParameters.perlinParameters.seed = result;
+            }
         }
-    }
 
-    public void SetSize()
-    {
-        int result;
-        if (int.TryParse(publicReferences.sizeInput.text, out result))
+        public void SetOctave()
         {
-            melodyParameters.size = result;
+            int result;
+            if (int.TryParse(publicReferences.octaveInput.text, out result))
+            {
+                melodyParameters.perlinParameters.octaves = result;
+            }
         }
-    }
 
-    public void SetSeed()
-    {
-        int result;
-        if (int.TryParse(publicReferences.seedInput.text, out result))
+        public void SetLacunarity()
         {
-            melodyParameters.perlinParameters.seed = result;
+            int result;
+            if (int.TryParse(publicReferences.lacunarityInput.text, out result))
+            {
+                melodyParameters.perlinParameters.lacunarity = result;
+            }
         }
-    }
 
-    public void SetOctave()
-    {
-        int result;
-        if (int.TryParse(publicReferences.octaveInput.text, out result))
+        public void SetPersistance()
         {
-            melodyParameters.perlinParameters.octaves = result;
+            melodyParameters.perlinParameters.persistance = publicReferences.persistanceInput.value;
         }
-    }
 
-    public void SetLacunarity()
-    {
-        int result;
-        if (int.TryParse(publicReferences.lacunarityInput.text, out result))
+        public void SetDimensions()
         {
-            melodyParameters.perlinParameters.lacunarity = result;
+            int result;
+            if (int.TryParse(publicReferences.dimensionInput.text, out result))
+            {
+                melodyParameters.perlinParameters.dimensions = result;
+            }
         }
-    }
 
-    public void SetPersistance()
-    {
-        melodyParameters.perlinParameters.persistance = publicReferences.persistanceInput.value;
-    }
-
-    public void SetDimensions()
-    {
-        int result;
-        if (int.TryParse(publicReferences.dimensionInput.text, out result))
+        public int GetNotesRange()
         {
-            melodyParameters.perlinParameters.dimensions = result;
+            return audioSamples.Length;
         }
-    }
 
-    public int GetNotesRange()
-    {
-        return audioSamples.Length;
-    }
+        public int GetMusicLength()
+        {
+            return melodyParameters.perlinParameters.dimensions * melodyParameters.perlinParameters.dimensions;
+        }
 
-    public int GetMusicLength()
-    {
-        return melodyParameters.perlinParameters.dimensions * melodyParameters.perlinParameters.dimensions;
-    }
+        public int GetMusicSize()
+        {
+            return melodyParameters.perlinParameters.dimensions;
+        }
 
-    public int GetMusicSize()
-    {
-        return melodyParameters.perlinParameters.dimensions;
-    }
+        public int GetMusicArmature()
+        {
+            return melodyParameters.signature;
+        }
+        #endregion
 
-    public int GetMusicArmature()
-    {
-        return melodyParameters.signature;
     }
-    #endregion
 
 }
 /* Prioridades:
