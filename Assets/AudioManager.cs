@@ -9,6 +9,13 @@ public class AudioManager : MonoBehaviour
     public int currentTempo;
     public int currentCompass;
 
+    private void Awake() {
+        // musicParameters will be our singleton
+        if (MusicParameters.instance == null) {
+            MusicParameters.instance = musicParameters;
+        }
+    }
+
     private void Start()
     {
         currentTempo = 1;

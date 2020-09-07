@@ -9,8 +9,9 @@ public class LivePlayer : MonoBehaviour
 {
 	#region Live keyboard
 	public MusicPlayer musicPlayer;
-	public float transpose = 0;  // transpose in semitones
+	public int transpose = 0;  // transpose in semitones
     public int octave;
+	public ChordType chordType = ChordType.MAJOR;
 
 	private void Start() {
 		octave = musicPlayer.baseOctave;
@@ -43,7 +44,12 @@ public class LivePlayer : MonoBehaviour
 		{
             foreach(int note in notes) {
 				// musicPlayer.PlayNote(note + transpose, octave);
-				musicPlayer.PlayChord(note + transpose, octave, ChordType.MINOR);
+				// musicPlayer.PlayChord(new Chord(note + transpose, octave, chordType));
+				musicPlayer.PlayChordArpeggio(
+					new Arpeggio(
+						new Chord(note + transpose, octave, chordType)
+					)
+				);
 
                 // Control the position of the main VisualNote instantiated
                 PositionController.MoveNoteToPosition(VisualNote.main, note);

@@ -5,10 +5,10 @@ using UnityEngine;
 public class MusicComposer : MonoBehaviour
 {
     private void Start() {
-        StartCoroutine(PlayMusic());
+        StartCoroutine(PlayScriptMusic());
     }
 
-    IEnumerator PlayMusic() {
+    IEnumerator PlayScriptMusic() {
         // Wrote here your music
         // TODO turn this visual
         yield return null;
