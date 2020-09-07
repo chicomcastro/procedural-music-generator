@@ -3,12 +3,12 @@ using UnityEngine;
 [System.Serializable]
 public class PerlinParameters
 {
-    public int dimensions = 4;
-    public int seed = 10;
-    public int octaves = 1;
+    public int dimensions = 8;
+    public int seed = 20;
+    public int octaves = 4;
     [Range(0, 1)]
-    public float persistance = 1f;
-    public float lacunarity = 1f;
+    public float persistance = 0.5f;
+    public float lacunarity = 3f;
 
     [HideInInspector]
     public int range;

@@ -3,30 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Demo script to play notes through computers keyboard
+/// Demo script to play notes through computer's keyboard
 /// </summary>
 public class LivePlayer : MonoBehaviour
 {
 	#region Live keyboard
+	public MusicPlayer musicPlayer;
 	public float transpose = 0;  // transpose in semitones
-	private List<AudioSource> audioSources = new List<AudioSource>();
-	public AudioClip baseNote;
-    public int octave = 0;
-
-	private void Start()
-	{
-        if (baseNote == null) {
-            Debug.LogError("There's no base note");
-            return;
-        }
-        // Creating audiosources for each note
-        for (int i = 0; i < 15; i++)
-        {
-            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip = baseNote;
-            audioSources.Add(audioSource);
-        }
-	}
+    public int octave = 2;
 
 	void Update()
 	{
@@ -44,7 +28,7 @@ public class LivePlayer : MonoBehaviour
 		if (Input.GetKeyDown("u")) notes.Add(10); // A#
 		if (Input.GetKeyDown("j")) notes.Add(11); // B
 		if (Input.GetKeyDown("k")) notes.Add(12); // C
-		if (Input.GetKeyDown("o")) notes.Add(13); // C#
+		if (Input.GetKeyDown("o")) notes.Add(13); // C#	
 		if (Input.GetKeyDown("l")) notes.Add(14); // D
 
         if (Input.GetKeyDown(KeyCode.LeftArrow)) octave += -1;
@@ -54,9 +38,7 @@ public class LivePlayer : MonoBehaviour
 		if (notes.Count > 0)
 		{
             foreach(int note in notes) {
-                AudioSource audioSource = audioSources[note];
-                audioSource.pitch = Mathf.Pow(2, (note + transpose + octave * 12) / 12.0f);
-                audioSource.Play();
+				musicPlayer.PlayNote((note + transpose +  (octave - 2) * 12));
 
                 // Control the position of the main VisualNote instantiated
                 PositionController.MoveNoteToPosition(VisualNote.main, note);

@@ -23,7 +23,8 @@ namespace PMM.Demo
 
         [Space]
         [Header("Melody parameters")]
-        public MelodyParameters melodyParameters;
+        public MusicParameters melodyParameters;
+        public PerlinParameters perlinParameters;
 
         // Our reference to an audio manager
         public static AudioManager instance;
@@ -55,7 +56,7 @@ namespace PMM.Demo
 
             // Filter all our registered notes (from samples) to only notes in our scale
             scale = Mapper.GetScale(notes, scaleNotes);
-            melodyParameters.perlinParameters.range = scale.Count - 1;  // unique dinamic value (depends on samples and scale)
+            perlinParameters.range = scale.Count - 1;  // unique dinamic value (depends on samples and scale)
 
             visualConstructor = FindObjectOfType<VisualConstructor>();
         }
@@ -68,7 +69,7 @@ namespace PMM.Demo
         public void GenerateMelody()
         {
             int[] melody = Mapper.GetNotesFromMelody(
-                MelodyProvider.GenerateMelody(melodyParameters.perlinParameters),
+                MelodyProvider.GenerateMelody(perlinParameters),
                 notes,
                 scale
             );
@@ -131,13 +132,13 @@ namespace PMM.Demo
                 melodyParameters.signature = 2;
             }
             // Perlin
-            if (melodyParameters.perlinParameters.lacunarity < 1)
+            if (perlinParameters.lacunarity < 1)
             {
-                melodyParameters.perlinParameters.lacunarity = 1;
+                perlinParameters.lacunarity = 1;
             }
-            if (melodyParameters.perlinParameters.octaves < 1)
+            if (perlinParameters.octaves < 1)
             {
-                melodyParameters.perlinParameters.octaves = 1;
+                perlinParameters.octaves = 1;
             }
         }
 
@@ -145,11 +146,11 @@ namespace PMM.Demo
         private void SetupParameters()
         {
             publicReferences.bpmInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.bpm.ToString();
-            publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.dimensions.ToString();
-            publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.lacunarity.ToString();
-            publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.octaves.ToString();
-            publicReferences.persistanceInput.value = melodyParameters.perlinParameters.persistance;
-            publicReferences.seedInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.perlinParameters.seed.ToString();
+            publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.dimensions.ToString();
+            publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.lacunarity.ToString();
+            publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.octaves.ToString();
+            publicReferences.persistanceInput.value = perlinParameters.persistance;
+            publicReferences.seedInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.seed.ToString();
             publicReferences.sizeInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.size.ToString();
         }
         public void SetBPM()
@@ -175,7 +176,7 @@ namespace PMM.Demo
             int result;
             if (int.TryParse(publicReferences.seedInput.text, out result))
             {
-                melodyParameters.perlinParameters.seed = result;
+                perlinParameters.seed = result;
             }
         }
 
@@ -184,7 +185,7 @@ namespace PMM.Demo
             int result;
             if (int.TryParse(publicReferences.octaveInput.text, out result))
             {
-                melodyParameters.perlinParameters.octaves = result;
+                perlinParameters.octaves = result;
             }
         }
 
@@ -193,13 +194,13 @@ namespace PMM.Demo
             int result;
             if (int.TryParse(publicReferences.lacunarityInput.text, out result))
             {
-                melodyParameters.perlinParameters.lacunarity = result;
+                perlinParameters.lacunarity = result;
             }
         }
 
         public void SetPersistance()
         {
-            melodyParameters.perlinParameters.persistance = publicReferences.persistanceInput.value;
+            perlinParameters.persistance = publicReferences.persistanceInput.value;
         }
 
         public void SetDimensions()
@@ -207,7 +208,7 @@ namespace PMM.Demo
             int result;
             if (int.TryParse(publicReferences.dimensionInput.text, out result))
             {
-                melodyParameters.perlinParameters.dimensions = result;
+                perlinParameters.dimensions = result;
             }
         }
 
@@ -218,12 +219,12 @@ namespace PMM.Demo
 
         public int GetMusicLength()
         {
-            return melodyParameters.perlinParameters.dimensions * melodyParameters.perlinParameters.dimensions;
+            return perlinParameters.dimensions * perlinParameters.dimensions;
         }
 
         public int GetMusicSize()
         {
-            return melodyParameters.perlinParameters.dimensions;
+            return perlinParameters.dimensions;
         }
 
         public int GetMusicArmature()

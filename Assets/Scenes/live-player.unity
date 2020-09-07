@@ -254,6 +254,8 @@ GameObject:
   m_Component:
   - component: {fileID: 316212783}
   - component: {fileID: 316212782}
+  - component: {fileID: 316212784}
+  - component: {fileID: 316212785}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -273,9 +275,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01936fd4cdea96141acc5531ca9a3c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  musicPlayer: {fileID: 316212784}
   transpose: 0
-  baseNote: {fileID: 8300000, guid: 7946657ddf9ec664998835ef2d206ce5, type: 3}
-  octave: 0
+  octave: 2
 --- !u!4 &316212783
 Transform:
   m_ObjectHideFlags: 0
@@ -290,6 +292,35 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &316212784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 316212781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f4be4812901b2d4599a77f21823629d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseNote: {fileID: 8300000, guid: 7946657ddf9ec664998835ef2d206ce5, type: 3}
+--- !u!114 &316212785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 316212781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3b7ab95eda4e7b46bf0260614caf955, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  melodyParameters:
+    bpm: 120
+    signature: 4
+    size: 8
 --- !u!1 &459458646 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2060836302521749881, guid: da2627534d57f014085897f354f182b8,
