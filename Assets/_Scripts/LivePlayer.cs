@@ -12,6 +12,7 @@ public class LivePlayer : MonoBehaviour
 	public int transpose = 0;  // transpose in semitones
     public int octave;
 	public ChordType chordType = ChordType.MAJOR;
+	public LivePlayerMode livePlayerMode = LivePlayerMode.NOTE;
 
 	private void Start() {
 		octave = musicPlayer.baseOctave;
@@ -43,13 +44,26 @@ public class LivePlayer : MonoBehaviour
 		if (notes.Count > 0)
 		{
             foreach(int note in notes) {
-				// musicPlayer.PlayNote(note + transpose, octave);
-				// musicPlayer.PlayChord(new Chord(note + transpose, octave, chordType));
-				musicPlayer.PlayChordArpeggio(
-					new Arpeggio(
-						new Chord(note + transpose, octave, chordType)
-					)
-				);
+				switch (livePlayerMode)
+				{
+					case LivePlayerMode.NOTE:
+						musicPlayer.PlayNote(note + transpose, octave);
+						break;
+					case LivePlayerMode.CHORD:
+						musicPlayer.PlayChord(new Chord(note + transpose, octave, chordType));
+						break;
+					case LivePlayerMode.ARPEGGIO:
+						musicPlayer.PlayChordArpeggio(
+							new Arpeggio(
+								new Chord(note + transpose, octave, chordType),
+								1f,
+								ArpeggioPatternRepository.patterns[ArpeggioPattern.OPEN_CHORD_WITHOUT_THIRD]
+							)
+						);
+						break;
+					default:
+						break;
+				}
 
                 // Control the position of the main VisualNote instantiated
                 PositionController.MoveNoteToPosition(VisualNote.main, note);
@@ -57,4 +71,10 @@ public class LivePlayer : MonoBehaviour
 		}
 	}
 	#endregion
+}
+
+public enum LivePlayerMode {
+	NOTE = 1,
+	CHORD = 2,
+	ARPEGGIO = 3
 }
