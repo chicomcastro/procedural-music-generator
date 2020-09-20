@@ -14,17 +14,37 @@ public class MusicComposer : MonoBehaviour
     [ContextMenu("Play music")]
     public void Play()
     {
-        PerlinParameters perlinParameters = new PerlinParameters();
+        int[] melody;
+        PerlinParameters perlinParameters;
+        MelodyParameters melodyParameters;
+
+        perlinParameters = new PerlinParameters();
         perlinParameters.range = 2 * 8;
         perlinParameters.length = 2;
         perlinParameters.width = 4;
-        int[] melody = MelodyProvider.GenerateMelody(perlinParameters);
+        melody = MelodyProvider.GenerateMelody(perlinParameters);
         MelodyProvider.PrintMelodyData(melody);
         StartCoroutine(PlayMelody(melody));
-        StartCoroutine(PlayMelody(melody: melody, initialWait: 4));
+
+        perlinParameters.range = 1 * 8;
+        perlinParameters.length = 1;
+        perlinParameters.width = 4;
+        melodyParameters = new MelodyParameters();
+        melodyParameters.octave = 4;
+        melody = MelodyProvider.GenerateMelody(perlinParameters, melodyParameters);
+        StartCoroutine(PlayMelody(melody: melody, initialWait: 4, noteDuration: 2));
+
+        perlinParameters.range = 1 * 8;
+        perlinParameters.length = 1;
+        perlinParameters.width = 8;
+        perlinParameters.seed = 44;
+        melodyParameters = new MelodyParameters();
+        melodyParameters.octave = 6;
+        melody = MelodyProvider.GenerateMelody(perlinParameters, melodyParameters);
+        StartCoroutine(PlayMelody(melody: melody, initialWait: 8, noteDuration: 4));
     }
 
-    IEnumerator PlayMelody(int[] melody, float repeatQuant = -1f, int initialWait = 0)
+    IEnumerator PlayMelody(int[] melody, float repeatQuant = -1f, int initialWait = 0, int noteDuration = 1)
     {
         if (repeatQuant == -1) {
             repeatQuant = Mathf.Infinity;
@@ -39,7 +59,7 @@ public class MusicComposer : MonoBehaviour
             foreach (int note in melody)
             {
                 print("Playing: " + note);
-                yield return NextBeat();
+                yield return WaitBeats(noteDuration);
                 musicPlayer.PlayNote(note % 12, (note / 12) - musicPlayer.baseOctave);
                 PositionController.MoveNoteToPosition(VisualNote.main, note);
             }
@@ -101,5 +121,10 @@ public class MusicComposer : MonoBehaviour
     private WaitForSeconds NextHalfBeat()
     {
         return new WaitForSeconds(60f / MusicParameters.instance.bpm / 2);
+    }
+
+    private WaitForSeconds WaitBeats(int beatsToWait)
+    {
+        return new WaitForSeconds(60f / MusicParameters.instance.bpm * beatsToWait);
     }
 }
