@@ -14,16 +14,28 @@ public class MusicComposer : MonoBehaviour
     [ContextMenu("Play music")]
     public void Play()
     {
-        int[] melody = MelodyProvider.GenerateMelody(new PerlinParameters());
+        PerlinParameters perlinParameters = new PerlinParameters();
+        perlinParameters.range = 2 * 8;
+        perlinParameters.length = 2;
+        perlinParameters.width = 4;
+        int[] melody = MelodyProvider.GenerateMelody(perlinParameters);
         MelodyProvider.PrintMelodyData(melody);
         StartCoroutine(PlayMelody(melody));
+        StartCoroutine(PlayMelody(melody: melody, initialWait: 4));
     }
 
-    IEnumerator PlayMelody(int[] melody, int repeatQuant = 1)
+    IEnumerator PlayMelody(int[] melody, float repeatQuant = -1f, int initialWait = 0)
     {
+        if (repeatQuant == -1) {
+            repeatQuant = Mathf.Infinity;
+        }
+        while (initialWait > 0) {
+            print("Waiting");
+            yield return NextCompass();
+            initialWait--;
+        }
         for (int repetition = 0; repetition < repeatQuant; repetition++)
         {
-            print("Repeating: " + repetition);
             foreach (int note in melody)
             {
                 print("Playing: " + note);
@@ -76,9 +88,9 @@ public class MusicComposer : MonoBehaviour
         yield return null;
     }
 
-    private WaitUntil NextCompass()
+    private WaitForSeconds NextCompass()
     {
-        return new WaitUntil(() => AudioManager.instance.currentTempo == 1f);
+        return new WaitForSeconds(60f / MusicParameters.instance.bpm * MusicParameters.instance.signature);
     }
 
     private WaitForSeconds NextBeat()

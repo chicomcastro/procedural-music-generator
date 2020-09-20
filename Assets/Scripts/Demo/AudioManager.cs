@@ -144,7 +144,7 @@ namespace PMM.Demo
         private void SetupParameters()
         {
             publicReferences.bpmInput.transform.parent.gameObject.GetComponent<InputField>().text = melodyParameters.bpm.ToString();
-            publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.dimensions.ToString();
+            publicReferences.dimensionInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.length.ToString();
             publicReferences.lacunarityInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.lacunarity.ToString();
             publicReferences.octaveInput.transform.parent.gameObject.GetComponent<InputField>().text = perlinParameters.octaves.ToString();
             publicReferences.persistanceInput.value = perlinParameters.persistance;
@@ -206,7 +206,8 @@ namespace PMM.Demo
             int result;
             if (int.TryParse(publicReferences.dimensionInput.text, out result))
             {
-                perlinParameters.dimensions = result;
+                perlinParameters.length = result;
+                perlinParameters.width = result;
             }
         }
 
@@ -217,12 +218,12 @@ namespace PMM.Demo
 
         public int GetMusicLength()
         {
-            return perlinParameters.dimensions * perlinParameters.dimensions;
+            return perlinParameters.length * perlinParameters.width;
         }
 
         public int GetMusicSize()
         {
-            return perlinParameters.dimensions;
+            return perlinParameters.length;
         }
 
         public int GetMusicArmature()

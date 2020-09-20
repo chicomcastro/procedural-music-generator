@@ -13,7 +13,12 @@ public static class MelodyProvider
         Debug.Log(a);
     }
 
-    public static int[] GenerateMelody(PerlinParameters perlinParameters) {
+    public static int[] GenerateMelody(PerlinParameters perlinParameters, MelodyParameters melodyParameters=null) {
+		if (melodyParameters == null) {
+			melodyParameters = new MelodyParameters();
+		}
+		Debug.Log("Generating melody with parameters: " + melodyParameters.ToString());
+
         const int NOTE = 0;
         const int PAUSE = 1;
 
@@ -23,7 +28,7 @@ public static class MelodyProvider
 
         for (int i = 0; i < melody.Length; i++)
         {
-            melody[i] = noiseMap[i, NOTE];
+            melody[i] = noiseMap[i, NOTE] + melodyParameters.octave * 12 + melodyParameters.tone;
         }
 
         return melody;
@@ -31,14 +36,15 @@ public static class MelodyProvider
 
     private static int[,] GetNoiseMap(PerlinParameters perlinParameters)
     {
-        int dimensions = perlinParameters.dimensions;
+        int width = perlinParameters.width;
+        int length = perlinParameters.length;
         int seed = perlinParameters.seed;
         int range = perlinParameters.range;
         int octaves = perlinParameters.octaves;
         float persistance = perlinParameters.persistance;
         float lacunarity = perlinParameters.lacunarity;
 
-        return PerlinNoise.GenerateHeights(dimensions, dimensions, seed, range, octaves, persistance, lacunarity);
+        return PerlinNoise.GenerateHeights(width, length, seed, range, octaves, persistance, lacunarity);
     }
 
     private static void MergeMelodies() {

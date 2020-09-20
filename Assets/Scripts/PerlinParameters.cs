@@ -3,7 +3,8 @@ using UnityEngine;
 [System.Serializable]
 public class PerlinParameters
 {
-    public int dimensions = 8;
+    public int length = 8;
+    public int width = 8;
     public int seed = 20;
     public int octaves = 4;
     [Range(0, 1)]
