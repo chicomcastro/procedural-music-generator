@@ -11,5 +11,5 @@ public class PerlinParameters
     public float lacunarity = 3f;
 
     [HideInInspector]
-    public int range;
+    public int range = 10 * 8;
 }

@@ -110,8 +110,6 @@ namespace PMM.Demo
                 {
                     audioSource.clip = notes[melody[i]].clip;
 
-                    // Fazer lógica de não tocar caso seja repetido
-
                     audioSource.Play();
                     yield return new WaitForSeconds(60f / melodyParameters.bpm);
 

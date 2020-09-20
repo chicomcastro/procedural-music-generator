@@ -280,6 +280,7 @@ MonoBehaviour:
   transpose: 0
   octave: 3
   chordType: 1
+  livePlayerMode: 1
 --- !u!4 &316212783
 Transform:
   m_ObjectHideFlags: 0
@@ -333,11 +334,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 316212781}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5a12f21ac79fd7478a341f4f3032c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  musicPlayer: {fileID: 316212784}
 --- !u!1 &459458646 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2060836302521749881, guid: da2627534d57f014085897f354f182b8,

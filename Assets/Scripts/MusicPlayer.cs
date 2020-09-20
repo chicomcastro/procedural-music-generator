@@ -7,13 +7,27 @@ public class MusicPlayer : MonoBehaviour
     public AudioClip baseNote;              // Typically a sample of note 2C
     public int baseOctave = 2;
 
+    private Dictionary<int, AudioSource> audioSources;
+
+    private void Start()
+    {
+        audioSources = new Dictionary<int, AudioSource>();
+        for (int note = -4 * 12; note < 4 * 12; note++)
+        {
+            AudioSource audioSource = this.gameObject.AddComponent<AudioSource>();
+            audioSource.clip = baseNote;
+            audioSource.pitch = Mathf.Pow(2, note / 12.0f);
+            audioSources.Add(note, audioSource);
+        }
+    }
+
     public void PlayNote(int intervalFromBaseNote, int octave)
     {
-        AudioSource audioSource = this.gameObject.AddComponent<AudioSource>();
-        audioSource.clip = baseNote;
-        audioSource.pitch = Mathf.Pow(2, (intervalFromBaseNote + (octave - baseOctave) * 12) / 12.0f);
-        audioSource.Play();
-        Destroy(audioSource, 2f);
+        int noteToPlay = intervalFromBaseNote + (octave - baseOctave) * 12;
+        if (audioSources.ContainsKey(noteToPlay))
+        {
+            audioSources[noteToPlay].Play();
+        }
     }
 
     public void PlayChord(Chord chord)

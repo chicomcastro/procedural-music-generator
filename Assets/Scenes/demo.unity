@@ -1941,14 +1941,14 @@ MonoBehaviour:
   melodyParameters:
     bpm: 300
     signature: 4
-    size: 16
-    perlinParameters:
-      dimensions: 8
-      seed: 20
-      octaves: 3
-      persistance: 0.5
-      lacunarity: 3
-      range: 0
+    size: 4
+  perlinParameters:
+    dimensions: 8
+    seed: 20
+    octaves: 4
+    persistance: 0.5
+    lacunarity: 3
+    range: 80
   scaleNotes:
   - C
   - D

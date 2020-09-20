@@ -66,7 +66,7 @@ public class LivePlayer : MonoBehaviour
 				}
 
                 // Control the position of the main VisualNote instantiated
-                PositionController.MoveNoteToPosition(VisualNote.main, note);
+                PositionController.MoveNoteToPosition(VisualNote.main, note + transpose + octave * 12);
             }
 		}
 	}

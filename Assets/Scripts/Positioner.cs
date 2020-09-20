@@ -48,7 +48,7 @@ public static class PositionProvider
         }
 
         // Get total of notes available (counting spaces between octaves and nonexisting tones as E# and B#)
-        int octaves = 1;    // TODO get from audio manager
+        int octaves = 8;    // TODO get from audio manager
         double positionsCount = (
             octaves * 13 +
             ((octaves > 1) ? (octaves - 1) : 0) +

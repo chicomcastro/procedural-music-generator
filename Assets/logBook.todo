@@ -3,15 +3,24 @@ Notas 05/09/2020:
     toca alguma nota
     TODOs:
     ✔ Verificar se o sistema é escalável para várias bolinhas @done (06/09/2020 10:53:05)
-    ☐ Refatorar sistema de geração de melodia (acho que tá tudo no AudioManager)
-    ☐ Gravar melodias (distrinchar)
-    ☐ Fazer interface (distrinchar)
+    ✔ Refatorar sistema de geração de melodia (acho que tá tudo no AudioManager) @done (08/09/2020 00:11:54)
 
 Notas 06/09/2020:
     > Verificar se o sistema é escalável para várias bolinhas @done (06/09/2020 10:53:05)
     - Fiz uma refatoração separando providers, services e controllers pra permitir múltiplas instâncias de VisualNotes
     - A classe VisualNote já existente foi renomeada para VisualKey e a VisualNote passou a ser a representação
     das instâncias das bolinhas (as com particle effects)
+
+Notas 07/09/2020:
+    - Implementei a infraestrutura pra tocar notas, acordes e arpegios (dedilhados, o que for)
+    - Separei quase tudo que era da cena principal num namespace Demo
+    - Acho que agora já dá pra trabalhar na parte de composição / gravação
+    TODOs:
+        ☐ Criar melodias a partir da cena de Demo (interface) para guardar no formato do music player (Note[] -> int[])
+        ☐ Implementar scriptable music (ver MusicComposer.cs)
+        ☐ Converter para MIDI (pulo do gato)
+        ☐ Receber MIDI como input
+        ☐ Testar com outros samples (timbres diferentes)
 
 Alguma coisa de meados de 2017 (tentar reviver depois):
 AudioManager:
