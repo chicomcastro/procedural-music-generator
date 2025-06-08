@@ -1,0 +1,186 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Nicer font */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #eef1f5; /* Lighter, softer background */
+    color: #333; /* Default text color */
+}
+
+h1, h2, h3 {
+    color: #2c3e50; /* Darker, more modern heading color */
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+.controls-container, .output-container {
+    background-color: #ffffff;
+    padding: 25px; /* Slightly more padding */
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Softer shadow */
+    margin-bottom: 25px;
+    width: 90%;
+    max-width: 750px;
+}
+
+.controls-container div, .output-container div {
+    margin-bottom: 15px; /* More spacing */
+}
+
+.controls-container label {
+    display: inline-block;
+    width: 200px; /* Adjust if needed */
+    margin-right: 10px;
+    font-weight: 500; /* Slightly bolder labels */
+}
+
+.controls-container input[type="number"],
+.controls-container input[type="range"] {
+    padding: 8px; /* More padding in inputs */
+    border-radius: 6px;
+    border: 1px solid #dcdcdc; /* Lighter border */
+    width: 80px; /* Default width for number inputs */
+}
+.controls-container input[type="range"] {
+    width: 150px; /* Specific width for range */
+    vertical-align: middle;
+}
+#p-persistance-val { /* Styling for the persistance value display */
+    display: inline-block;
+    min-width: 30px;
+    text-align: left;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+
+button {
+    padding: 12px 20px; /* Bigger buttons */
+    background-color: #3498db; /* A more vibrant blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05em; /* Slightly larger font */
+    transition: background-color 0.2s ease; /* Smooth hover transition */
+    margin-right: 10px; /* Spacing between buttons if they are next to each other */
+}
+
+button:hover {
+    background-color: #2980b9; /* Darker shade on hover */
+}
+
+button:disabled {
+    background-color: #bdc3c7; /* Grey out disabled buttons */
+    cursor: not-allowed;
+}
+
+#piano-keyboard {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    background-color: #f8f9fa; /* Light background for the keyboard area */
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.piano {
+    display: flex;
+    position: relative;
+    background-color: #2d3436; /* Darker piano body */
+    padding: 15px; /* More padding around keys */
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.key.white {
+    background-color: #fdfdfd; /* Slightly off-white */
+    width: 42px; /* Slightly wider */
+    height: 190px; /* Slightly taller */
+    border: 1px solid #ccc; /* Lighter border for white keys */
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+}
+
+.key.black {
+    background-color: #2c3e50; /* Consistent dark color */
+    width: 26px;
+    height: 125px;
+    border: 1px solid #222;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+    z-index: 2; /* Ensure black keys are on top - was already there but good to confirm */
+    margin-left: -13px; /* Half of black key width if centered, adjust as needed */
+    margin-right: -13px;
+}
+/* Correcting black key positioning based on new white key width (42px) and black key width (26px)
+   Half of black key width is 13px.
+   So, they should be offset by -13px relative to the edge of the previous white key.
+*/
+.key[data-note="C#4"], .key[data-note="C#5"] { margin-left: calc(-26px/2 + (42px - 26px)/2); } /* Effectively -13px from center of where it would be */
+.key[data-note="D#4"], .key[data-note="D#5"] { margin-left: calc(-26px/2 + (42px - 26px)/2); }
+.key[data-note="F#4"], .key[data-note="F#5"] { margin-left: calc(-26px/2 + (42px - 26px)/2); }
+.key[data-note="G#4"], .key[data-note="G#5"] { margin-left: calc(-26px/2 + (42px - 26px)/2); }
+.key[data-note="A#4"], .key[data-note="A#5"] { margin-left: calc(-26px/2 + (42px - 26px)/2); }
+/* The above calc is a bit off. Simpler to just use -13px to position their left edge from the previous white key's center point of the black key */
+/* A more standard way for overlap: */
+.key.black {
+    /* ... other properties ... */
+    margin-left: -14px; /* Adjust this for precise overlap based on key widths & borders */
+    margin-right: -14px; /* Should be same as margin-left to keep spacing consistent if key was not there */
+}
+/* Remove individual margin-left for black keys if using the general one above, unless specific adjustments are needed */
+/* For example, if white keys are 42px, black keys 26px. Black key should start at 42 - (26/2) = 42 - 13 = 29px from left edge of white key.
+   Or, if it's relative to the previous key: white_key_width - black_key_width/2
+   The provided CSS had negative margins for black keys which is a common technique.
+   If white key is 40px, black is 24px. margin-left: -12px places the black key starting at 28px on the white key.
+   New: white 42px, black 26px. margin-left: -13px places black key starting at 29px.
+   This looks fine. I will revert to the original simpler negative margins from the prompt as they are generally effective.
+*/
+.key[data-note="C#4"], .key[data-note="C#5"] { margin-left: -13px; }
+.key[data-note="D#4"], .key[data-note="D#5"] { margin-left: -13px; }
+.key[data-note="F#4"], .key[data-note="F#5"] { margin-left: -13px; }
+.key[data-note="G#4"], .key[data-note="G#5"] { margin-left: -13px; }
+.key[data-note="A#4"], .key[data-note="A#5"] { margin-left: -13px; }
+
+
+.key-label {
+    color: #7f8c8d; /* Softer label color */
+    font-size: 0.75em;
+    position: absolute; /* Copied from prompt */
+    bottom: 10px;     /* Copied from prompt */
+    left: 50%;        /* Copied from prompt */
+    transform: translateX(-50%); /* Copied from prompt */
+}
+
+.key.active {
+    background-color: #e74c3c; /* A distinct red for active state */
+    box-shadow: 0 0 5px #e74c3c;
+}
+.key.white.active {
+     border-color: #c0392b;
+}
+.key.black.active {
+    border-color: #c0392b;
+}
+
+/* Basic responsiveness */
+@media (max-width: 600px) {
+    .controls-container label {
+        width: 100%; /* Stack labels above inputs */
+        margin-bottom: 5px;
+    }
+    .controls-container input[type="number"],
+    .controls-container input[type="range"] {
+        width: calc(100% - 20px); /* Full width inputs on small screens */
+    }
+    .piano {
+        /* Allow piano to shrink if needed, or add horizontal scroll */
+        transform: scale(0.8); /* Example: make piano smaller */
+        transform-origin: center;
+    }
+}

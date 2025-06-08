@@ -1,10 +1,15 @@
-export interface MelodyParameters {
+// Ambient declarations for Node.js specific variables, for the test block below.
+// These do not affect browser execution where require/module are undefined.
+declare var require: any;
+declare var module: any;
+
+interface MelodyParameters {
   tone: number;
   octave: number;
   scale: number[] | null;
 }
 
-export interface PerlinParameters {
+interface PerlinParameters {
   length: number;
   width: number;
   seed: number;
@@ -14,13 +19,13 @@ export interface PerlinParameters {
   range: number;
 }
 
-export interface Vector2 {
+interface Vector2 {
   x: number;
   y: number;
 }
 
 // Basic Linear Congruential Generator (LCG) for seeded random numbers
-export class SeededRandom {
+class SeededRandom {
   private seed: number;
   private readonly multiplier: number = 1664525;
   private readonly increment: number = 1013904223;
@@ -44,7 +49,7 @@ export class SeededRandom {
 
 // Adapted from Stefan Gustavson's Java implementation, via Sean McCullough's JavaScript port
 // https://gist.github.com/banksean/304522 (SimplexNoise)
-export class PerlinNoise {
+class PerlinNoise {
   private grad3: number[][];
   private p: number[];
   private perm: number[];
@@ -141,7 +146,7 @@ function roundToInt(value: number): number {
   return Math.round(value);
 }
 
-export function generateHeights(
+function generateHeights(
   width: number,
   length: number,
   seed: number,
@@ -213,7 +218,7 @@ export function generateHeights(
   return result;
 }
 
-export function generateMelody(
+function generateMelody(
   perlinParameters: PerlinParameters,
   melodyParameters?: MelodyParameters
 ): number[] {
