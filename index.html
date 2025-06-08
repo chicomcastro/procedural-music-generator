@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Melody Generator</h1>
+
+    <div class="controls-container">
+        <h2>Parameters</h2>
+        <div id="perlin-params">
+            <h3>Perlin Noise Parameters</h3>
+            <div>
+                <label for="p-length">Length (number of notes):</label>
+                <input type="number" id="p-length" value="16" min="1" max="100">
+            </div>
+            <div>
+                <label for="p-seed">Seed:</label>
+                <input type="number" id="p-seed" value="1">
+            </div>
+            <div>
+                <label for="p-octaves">Noise Octaves:</label>
+                <input type="number" id="p-octaves" value="3" min="1" max="8">
+            </div>
+            <div>
+                <label for="p-persistance">Noise Persistance (0-1):</label>
+                <input type="range" id="p-persistance" value="0.5" min="0.01" max="1" step="0.01">
+                <span id="p-persistance-val">0.5</span>
+            </div>
+            <div>
+                <label for="p-lacunarity">Noise Lacunarity:</label>
+                <input type="number" id="p-lacunarity" value="2.0" min="1" step="0.1">
+            </div>
+            <div>
+                <label for="p-range">Note Range (semitones):</label>
+                <input type="number" id="p-range" value="24" min="1" max="48">
+            </div>
+            <!-- width is used internally as 1 for melody lines, so no control for it yet -->
+        </div>
+        <div id="melody-params">
+            <h3>Melody Parameters</h3>
+            <div>
+                <label for="m-tone">Tone (offset, e.g., 0 for C):</label>
+                <input type="number" id="m-tone" value="0" min="-12" max="12">
+            </div>
+            <div>
+                <label for="m-octave">Base Octave:</label>
+                <input type="number" id="m-octave" value="3" min="0" max="7">
+            </div>
+            <!-- 'scale' parameter is more complex (array of numbers), so we'll omit a UI control for it in this iteration for simplicity. -->
+        </div>
+        <button id="generate-melody-btn">Generate Melody</button>
+    </div>
+
+    <div class="output-container">
+        <h2>Generated Melody</h2>
+        <div id="piano-keyboard">
+            <div class="piano">
+                <!-- Octave 4 -->
+                <div class="key white" data-note="C4" id="key-C4"><span class="key-label">C4</span></div>
+                <div class="key black" data-note="C#4" id="key-Cs4"></div>
+                <div class="key white" data-note="D4" id="key-D4"><span class="key-label">D4</span></div>
+                <div class="key black" data-note="D#4" id="key-Ds4"></div>
+                <div class="key white" data-note="E4" id="key-E4"><span class="key-label">E4</span></div>
+                <div class="key white" data-note="F4" id="key-F4"><span class="key-label">F4</span></div>
+                <div class="key black" data-note="F#4" id="key-Fs4"></div>
+                <div class="key white" data-note="G4" id="key-G4"><span class="key-label">G4</span></div>
+                <div class="key black" data-note="G#4" id="key-Gs4"></div>
+                <div class="key white" data-note="A4" id="key-A4"><span class="key-label">A4</span></div>
+                <div class="key black" data-note="A#4" id="key-As4"></div>
+                <div class="key white" data-note="B4" id="key-B4"><span class="key-label">B4</span></div>
+                <!-- Octave 5 -->
+                <div class="key white" data-note="C5" id="key-C5"><span class="key-label">C5</span></div>
+                <div class="key black" data-note="C#5" id="key-Cs5"></div>
+                <div class="key white" data-note="D5" id="key-D5"><span class="key-label">D5</span></div>
+                <div class="key black" data-note="D#5" id="key-Ds5"></div>
+                <div class="key white" data-note="E5" id="key-E5"><span class="key-label">E5</span></div>
+                <div class="key white" data-note="F5" id="key-F5"><span class="key-label">F5</span></div>
+                <div class="key black" data-note="F#5" id="key-Fs5"></div>
+                <div class="key white" data-note="G5" id="key-G5"><span class="key-label">G5</span></div>
+                <div class="key black" data-note="G#5" id="key-Gs5"></div>
+                <div class="key white" data-note="A5" id="key-A5"><span class="key-label">A5</span></div>
+                <div class="key black" data-note="A#5" id="key-As5"></div>
+                <div class="key white" data-note="B5" id="key-B5"><span class="key-label">B5</span></div>
+            </div>
+        </div>
+        <button id="play-melody-btn">Play Melody</button>
+    </div>
+
+    <script src="melody.js"></script> <!-- Assuming melody.ts is compiled to melody.js -->
+    <script src="app.js"></script>
+</body>
+</html>
