@@ -155,6 +155,24 @@ range, octaves, persistance, lacunarity, offset) {
     }
     return result;
 }
+function quantizeToScale(midiNote, tonicPitchClass, scale) {
+    if (!scale || scale.length === 0) {
+        return midiNote;
+    }
+    const degreeFromTonic = midiNote - tonicPitchClass;
+    const octaveOffset = Math.floor(degreeFromTonic / 12);
+    const semitoneInOctave = ((degreeFromTonic % 12) + 12) % 12;
+    let best = scale[0];
+    let bestDistance = Math.abs(semitoneInOctave - scale[0]);
+    for (let i = 1; i < scale.length; i++) {
+        const distance = Math.abs(semitoneInOctave - scale[i]);
+        if (distance < bestDistance) {
+            best = scale[i];
+            bestDistance = distance;
+        }
+    }
+    return tonicPitchClass + octaveOffset * 12 + best;
+}
 function generateMelody(perlinParameters, melodyParameters) {
     const currentMelodyParameters = melodyParameters !== null && melodyParameters !== void 0 ? melodyParameters : {
         tone: 0,
@@ -167,10 +185,10 @@ function generateMelody(perlinParameters, melodyParameters) {
     const noiseMap = generateHeights(width, length, seed, noiseScale, range, octaves, persistance, lacunarity, offset);
     const melody = new Array(noiseMap.length);
     for (let i = 0; i < melody.length; i++) {
-        melody[i] =
-            noiseMap[i][NOTE] +
-                currentMelodyParameters.octave * 12 +
-                currentMelodyParameters.tone;
+        const raw = noiseMap[i][NOTE] +
+            currentMelodyParameters.octave * 12 +
+            currentMelodyParameters.tone;
+        melody[i] = quantizeToScale(raw, currentMelodyParameters.tone, currentMelodyParameters.scale);
     }
     return melody;
 }

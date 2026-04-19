@@ -5,12 +5,21 @@ This is a little tool that I'm developing for musical purposes.
 
 It could be used to make infinite and adaptative music for games, mainly for open world games.
 
-But, for now, it's only a prototype on Unity, hope to develop it a little more as soon as I can.
+There are two implementations in this repo:
+
+- **Web prototype** (`index.html`, `app.js`, `melody.ts`/`melody.js`,
+  `style.css`) — open `index.html` in a modern browser. No build step
+  required; `melody.js` is the pre-compiled output of `melody.ts`.
+- **Unity prototype** (`Assets/`) — the original playground with
+  chords, arpeggios, live player and MIDI integration.
 
 ## What happens next?
-I'm planning to work on:
+
+See [ROADMAP.md](./ROADMAP.md) for the current task list. The original
+long-term goals are still valid:
+
 - Procedural melody generation (OK!)
-- Multiple voices for melody (OK!)
+- Multiple voices for melody (OK! — in the Unity build)
 - Adaptative, parametrical design (in dev)
 - Friendly user interface (in dev)
 - Harmony

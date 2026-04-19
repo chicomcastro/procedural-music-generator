@@ -11,30 +11,88 @@ const perlinParamsControls = {
 
 const melodyParamsControls = {
     tone: document.getElementById('m-tone'),
-    octave: document.getElementById('m-octave')
+    octave: document.getElementById('m-octave'),
+    scale: document.getElementById('m-scale')
 };
 
-// Buttons
+const playbackParamsControls = {
+    bpm: document.getElementById('p-bpm')
+};
+
+// Buttons and status
 const generateMelodyBtn = document.getElementById('generate-melody-btn');
 const playMelodyBtn = document.getElementById('play-melody-btn');
+const statusMessage = document.getElementById('status-message');
 
-// Disable Play Melody button initially
+function setStatus(text, kind) {
+    if (!statusMessage) return;
+    statusMessage.textContent = text || '';
+    statusMessage.className = 'status-message' + (kind ? ' status-' + kind : '');
+}
+
 if (playMelodyBtn) {
     playMelodyBtn.disabled = true;
 }
 
-// Update persistance value display
 if (perlinParamsControls.persistance && perlinParamsControls.persistanceVal) {
     perlinParamsControls.persistance.addEventListener('input', () => {
         perlinParamsControls.persistanceVal.textContent = perlinParamsControls.persistance.value;
     });
 }
 
-// Function to get current parameter values from UI
+// Scale definitions: semitone offsets from the tonic
+const SCALES = {
+    'chromatic': null,
+    'major': [0, 2, 4, 5, 7, 9, 11],
+    'minor': [0, 2, 3, 5, 7, 8, 10],
+    'pentatonic-major': [0, 2, 4, 7, 9],
+    'pentatonic-minor': [0, 3, 5, 7, 10],
+    'blues': [0, 3, 5, 6, 7, 10]
+};
+
+// Piano keyboard: MIDI 36 (C2) to 83 (B5)
+const PIANO_START_MIDI = 36;
+const PIANO_END_MIDI = 83;
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const noteToKeyId = {};
+
+function midiToNoteName(midi) {
+    const pitchClass = ((midi % 12) + 12) % 12;
+    const octave = Math.floor(midi / 12) - 1;
+    return NOTE_NAMES[pitchClass] + octave;
+}
+
+function renderPiano() {
+    const piano = document.getElementById('piano');
+    if (!piano) return;
+    piano.innerHTML = '';
+    for (let midi = PIANO_START_MIDI; midi <= PIANO_END_MIDI; midi++) {
+        const pitchClass = ((midi % 12) + 12) % 12;
+        const octave = Math.floor(midi / 12) - 1;
+        const name = NOTE_NAMES[pitchClass];
+        const isBlack = name.includes('#');
+        const keyId = 'key-' + name.replace('#', 's') + octave;
+        const el = document.createElement('div');
+        el.className = 'key ' + (isBlack ? 'black' : 'white');
+        el.dataset.note = name + octave;
+        el.id = keyId;
+        if (!isBlack) {
+            const label = document.createElement('span');
+            label.className = 'key-label';
+            label.textContent = name + octave;
+            el.appendChild(label);
+        }
+        piano.appendChild(el);
+        noteToKeyId[midi] = keyId;
+    }
+}
+
+renderPiano();
+
 function getPerlinParameters() {
     return {
         length: parseInt(perlinParamsControls.length.value),
-        width: 1, // Fixed for single melody line
+        width: 1,
         seed: parseInt(perlinParamsControls.seed.value),
         octaves: parseInt(perlinParamsControls.octaves.value),
         persistance: parseFloat(perlinParamsControls.persistance.value),
@@ -44,62 +102,54 @@ function getPerlinParameters() {
 }
 
 function getMelodyParameters() {
+    const scaleKey = melodyParamsControls.scale ? melodyParamsControls.scale.value : 'chromatic';
     return {
         tone: parseInt(melodyParamsControls.tone.value),
         octave: parseInt(melodyParamsControls.octave.value),
-        scale: null // Scale UI not implemented in this step
+        scale: SCALES[scaleKey] || null
     };
 }
 
-let currentMelody = []; // To store the generated melody
+function getBpm() {
+    const raw = parseInt(playbackParamsControls.bpm.value);
+    if (isNaN(raw) || raw <= 0) return 120;
+    return raw;
+}
+
+let currentMelody = [];
 
 if (generateMelodyBtn) {
     generateMelodyBtn.addEventListener('click', () => {
         const pParams = getPerlinParameters();
         const mParams = getMelodyParameters();
 
-        console.log("Perlin Params from UI:", pParams);
-        console.log("Melody Params from UI:", mParams);
-
         if (typeof generateMelody === 'function') {
             try {
                 currentMelody = generateMelody(pParams, mParams);
-                console.log("Generated Melody:", currentMelody);
-                alert(`Melody generated with ${currentMelody.length} notes!`);
-
+                setStatus(`Melody generated with ${currentMelody.length} notes.`, 'ok');
                 if (playMelodyBtn) {
                     playMelodyBtn.disabled = (!currentMelody || currentMelody.length === 0);
                 }
             } catch (error) {
                 console.error("Error generating melody:", error);
-                alert("Error generating melody. Check console for details.");
-                currentMelody = []; // Clear melody on error
-                if (playMelodyBtn) {
-                    playMelodyBtn.disabled = true;
-                }
+                setStatus('Error generating melody. Check console.', 'error');
+                currentMelody = [];
+                if (playMelodyBtn) playMelodyBtn.disabled = true;
             }
         } else {
-            console.error("generateMelody function not found. Ensure melody.js is loaded and correct.");
-            alert("Melody generation script not loaded correctly.");
-            currentMelody = []; // Clear melody if function not found
-            if (playMelodyBtn) {
-                playMelodyBtn.disabled = true;
-            }
+            console.error("generateMelody function not found.");
+            setStatus('Melody generation script not loaded correctly.', 'error');
+            currentMelody = [];
+            if (playMelodyBtn) playMelodyBtn.disabled = true;
         }
     });
-} else {
-    console.error("Generate Melody button not found.");
 }
 
-// Web Audio API and Playback
 let audioContext;
-let tempo = 120; // BPM
-let noteDuration = 60 / tempo; // Duration of a quarter note in seconds
 
 function initAudioContext() {
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        console.log("AudioContext initialized.");
     }
 }
 
@@ -107,24 +157,8 @@ function midiToFreq(midiNote) {
     return 440 * Math.pow(2, (midiNote - 69) / 12);
 }
 
-function mapNoteToMidi(noteValue) {
-    return noteValue;
-}
-
-const noteToKeyId = {
-    60: 'key-C4', 61: 'key-Cs4', 62: 'key-D4', 63: 'key-Ds4', 64: 'key-E4',
-    65: 'key-F4', 66: 'key-Fs4', 67: 'key-G4', 68: 'key-Gs4', 69: 'key-A4',
-    70: 'key-As4', 71: 'key-B4',
-    72: 'key-C5', 73: 'key-Cs5', 74: 'key-D5', 75: 'key-Ds5', 76: 'key-E5',
-    77: 'key-F5', 78: 'key-Fs5', 79: 'key-G5', 80: 'key-Gs5', 81: 'key-A5',
-    82: 'key-As5', 83: 'key-B5'
-};
-
 function playNote(midiNoteNumber, startTime, duration) {
-    if (!audioContext) {
-        console.warn("AudioContext not initialized. Cannot play note.");
-        return;
-    }
+    if (!audioContext) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -135,8 +169,8 @@ function playNote(midiNoteNumber, startTime, duration) {
     const attackTime = 0.05;
     const decayTime = 0.1;
     const sustainLevel = 0.7;
-    const releaseTime = 0.2;
-    const notePlayDuration = duration - releaseTime > 0 ? duration - releaseTime : 0.01;
+    const releaseTime = Math.min(0.2, duration * 0.4);
+    const notePlayDuration = Math.max(duration - releaseTime, 0.01);
 
     gainNode.gain.setValueAtTime(0, startTime);
     gainNode.gain.linearRampToValueAtTime(1.0, startTime + attackTime);
@@ -150,10 +184,10 @@ function playNote(midiNoteNumber, startTime, duration) {
     if (keyId) {
         const keyElement = document.getElementById(keyId);
         if (keyElement) {
-            const highlightDelay = (startTime - audioContext.currentTime) > 0 ? (startTime - audioContext.currentTime) * 1000 : 0;
-            const removeHighlightDelay = (startTime - audioContext.currentTime + duration) > 0 ? (startTime - audioContext.currentTime + duration) * 1000 : duration * 1000;
-            setTimeout(() => keyElement.classList.add('active'), highlightDelay);
-            setTimeout(() => keyElement.classList.remove('active'), removeHighlightDelay);
+            const nowOffset = Math.max(0, (startTime - audioContext.currentTime) * 1000);
+            const endOffset = Math.max(0, (startTime - audioContext.currentTime + duration) * 1000);
+            setTimeout(() => keyElement.classList.add('active'), nowOffset);
+            setTimeout(() => keyElement.classList.remove('active'), endOffset);
         }
     }
 }
@@ -162,35 +196,31 @@ if (playMelodyBtn) {
     playMelodyBtn.addEventListener('click', () => {
         initAudioContext();
         if (!currentMelody || currentMelody.length === 0) {
-            alert("No melody generated yet, or melody is empty. Click 'Generate Melody' first.");
+            setStatus("No melody generated yet. Click 'Generate Melody' first.", 'warn');
             return;
         }
         if (!audioContext) {
-            alert("AudioContext could not be initialized.");
+            setStatus('AudioContext could not be initialized.', 'error');
             return;
         }
 
-        if (playMelodyBtn) playMelodyBtn.disabled = true;
+        const noteDuration = 60 / getBpm();
+        playMelodyBtn.disabled = true;
         if (generateMelodyBtn) generateMelodyBtn.disabled = true;
+        setStatus('Playing…', 'ok');
 
-        console.log("Playing melody:", currentMelody);
         const melodyStartTime = audioContext.currentTime + 0.1;
         for (let i = 0; i < currentMelody.length; i++) {
-            const noteValue = currentMelody[i];
-            const midiNote = mapNoteToMidi(noteValue);
+            const midiNote = currentMelody[i];
             const noteStartTime = melodyStartTime + i * noteDuration;
             playNote(midiNote, noteStartTime, noteDuration);
         }
 
         const totalMelodyDuration = currentMelody.length * noteDuration;
         setTimeout(() => {
-            if (playMelodyBtn) playMelodyBtn.disabled = false;
+            playMelodyBtn.disabled = false;
             if (generateMelodyBtn) generateMelodyBtn.disabled = false;
-            console.log("Playback finished. Controls re-enabled.");
+            setStatus('Playback finished.', 'ok');
         }, (totalMelodyDuration + 0.5) * 1000);
     });
-} else {
-    console.error("Play Melody button not found.");
 }
-
-console.log('app.js fully loaded with UI refinements and playback logic.');

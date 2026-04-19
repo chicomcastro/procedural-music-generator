@@ -218,6 +218,29 @@ function generateHeights(
   return result;
 }
 
+function quantizeToScale(
+  midiNote: number,
+  tonicPitchClass: number,
+  scale: number[] | null
+): number {
+  if (!scale || scale.length === 0) {
+    return midiNote;
+  }
+  const degreeFromTonic = midiNote - tonicPitchClass;
+  const octaveOffset = Math.floor(degreeFromTonic / 12);
+  const semitoneInOctave = ((degreeFromTonic % 12) + 12) % 12;
+  let best = scale[0];
+  let bestDistance = Math.abs(semitoneInOctave - scale[0]);
+  for (let i = 1; i < scale.length; i++) {
+    const distance = Math.abs(semitoneInOctave - scale[i]);
+    if (distance < bestDistance) {
+      best = scale[i];
+      bestDistance = distance;
+    }
+  }
+  return tonicPitchClass + octaveOffset * 12 + best;
+}
+
 function generateMelody(
   perlinParameters: PerlinParameters,
   melodyParameters?: MelodyParameters
@@ -256,10 +279,15 @@ function generateMelody(
   const melody: number[] = new Array(noiseMap.length);
 
   for (let i = 0; i < melody.length; i++) {
-    melody[i] =
+    const raw =
       noiseMap[i][NOTE] +
       currentMelodyParameters.octave * 12 +
       currentMelodyParameters.tone;
+    melody[i] = quantizeToScale(
+      raw,
+      currentMelodyParameters.tone,
+      currentMelodyParameters.scale
+    );
   }
 
   return melody;
