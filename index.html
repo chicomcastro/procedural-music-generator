@@ -48,44 +48,35 @@
             </div>
             <div>
                 <label for="m-octave">Base Octave:</label>
-                <input type="number" id="m-octave" value="3" min="0" max="7">
+                <input type="number" id="m-octave" value="4" min="2" max="5">
             </div>
-            <!-- 'scale' parameter is more complex (array of numbers), so we'll omit a UI control for it in this iteration for simplicity. -->
+            <div>
+                <label for="m-scale">Scale:</label>
+                <select id="m-scale">
+                    <option value="chromatic" selected>Chromatic</option>
+                    <option value="major">Major</option>
+                    <option value="minor">Natural Minor</option>
+                    <option value="pentatonic-major">Pentatonic Major</option>
+                    <option value="pentatonic-minor">Pentatonic Minor</option>
+                    <option value="blues">Blues</option>
+                </select>
+            </div>
+        </div>
+        <div id="playback-params">
+            <h3>Playback Parameters</h3>
+            <div>
+                <label for="p-bpm">BPM:</label>
+                <input type="number" id="p-bpm" value="120" min="40" max="240">
+            </div>
         </div>
         <button id="generate-melody-btn">Generate Melody</button>
+        <div id="status-message" class="status-message" aria-live="polite"></div>
     </div>
 
     <div class="output-container">
         <h2>Generated Melody</h2>
         <div id="piano-keyboard">
-            <div class="piano">
-                <!-- Octave 4 -->
-                <div class="key white" data-note="C4" id="key-C4"><span class="key-label">C4</span></div>
-                <div class="key black" data-note="C#4" id="key-Cs4"></div>
-                <div class="key white" data-note="D4" id="key-D4"><span class="key-label">D4</span></div>
-                <div class="key black" data-note="D#4" id="key-Ds4"></div>
-                <div class="key white" data-note="E4" id="key-E4"><span class="key-label">E4</span></div>
-                <div class="key white" data-note="F4" id="key-F4"><span class="key-label">F4</span></div>
-                <div class="key black" data-note="F#4" id="key-Fs4"></div>
-                <div class="key white" data-note="G4" id="key-G4"><span class="key-label">G4</span></div>
-                <div class="key black" data-note="G#4" id="key-Gs4"></div>
-                <div class="key white" data-note="A4" id="key-A4"><span class="key-label">A4</span></div>
-                <div class="key black" data-note="A#4" id="key-As4"></div>
-                <div class="key white" data-note="B4" id="key-B4"><span class="key-label">B4</span></div>
-                <!-- Octave 5 -->
-                <div class="key white" data-note="C5" id="key-C5"><span class="key-label">C5</span></div>
-                <div class="key black" data-note="C#5" id="key-Cs5"></div>
-                <div class="key white" data-note="D5" id="key-D5"><span class="key-label">D5</span></div>
-                <div class="key black" data-note="D#5" id="key-Ds5"></div>
-                <div class="key white" data-note="E5" id="key-E5"><span class="key-label">E5</span></div>
-                <div class="key white" data-note="F5" id="key-F5"><span class="key-label">F5</span></div>
-                <div class="key black" data-note="F#5" id="key-Fs5"></div>
-                <div class="key white" data-note="G5" id="key-G5"><span class="key-label">G5</span></div>
-                <div class="key black" data-note="G#5" id="key-Gs5"></div>
-                <div class="key white" data-note="A5" id="key-A5"><span class="key-label">A5</span></div>
-                <div class="key black" data-note="A#5" id="key-As5"></div>
-                <div class="key white" data-note="B5" id="key-B5"><span class="key-label">B5</span></div>
-            </div>
+            <div class="piano" id="piano"></div>
         </div>
         <button id="play-melody-btn">Play Melody</button>
     </div>
