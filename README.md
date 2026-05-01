@@ -1,8 +1,14 @@
 # Procedural Music Generator
 
+> **This project has evolved into [SeedSong](https://github.com/chicomcastro/procedural-music-generator-web)** — a more complete procedural music generator with multi-instrument support, genre presets, WAV export, PWA, and URL-based sharing. Check it out for the full experience.
+>
+> This repo is kept as a reference for the **Perlin noise approach** to melody generation. The Perlin engine may be ported into SeedSong as an alternative algorithm provider in the future.
+
+---
+
 A tool for generating melodies procedurally using Perlin noise. Designed for infinite, adaptive music — especially suited for open-world games.
 
-**[Try the web demo](https://chicomcastro.github.io/procedural-music-generator/)** · **[Unity prototype on itch.io](https://chicomcastro.itch.io/music-maker)**
+**[Try the web demo](https://chicomcastro.github.io/procedural-music-generator/)** · **[Unity prototype on itch.io](https://chicomcastro.itch.io/music-maker)** · **[SeedSong (active project)](https://github.com/chicomcastro/procedural-music-generator-web)**
 
 ## Quick start (web)
 
