@@ -6,7 +6,7 @@ A tool for generating melodies procedurally using Perlin noise. Designed for inf
 
 ## Quick start (web)
 
-Open `index.html` in a modern browser (or use the [live demo](https://chicomcastro.github.io/procedural-music-generator/)). No build step or server required.
+Open `web/index.html` in a modern browser (or use the [live demo](https://chicomcastro.github.io/procedural-music-generator/)). No build step or server required.
 
 The generator creates melodies from Perlin noise controlled by seed, octaves, lacunarity, and persistence. You can pick a scale (major, minor, pentatonic, blues, chromatic), set BPM, and hear the result instantly through the Web Audio API.
 
@@ -29,11 +29,11 @@ Perlin noise produces a smooth, deterministic curve from a given seed. That curv
 
 | Path | Description |
 |---|---|
-| `melody.ts` | Core generator (Perlin noise + scale quantization) — source of truth |
-| `melody.js` | Compiled output of `melody.ts` (checked in until a build step is added) |
-| `app.js` | Web UI wiring (controls, keyboard rendering, playback) |
-| `index.html` / `style.css` | Web interface |
-| `Assets/` | Legacy Unity prototype with chords, arpeggios, MIDI integration, and multi-voice support |
+| `web/melody.ts` | Core generator (Perlin noise + scale quantization) — source of truth |
+| `web/melody.js` | Compiled output of `melody.ts` (checked in until a build step is added) |
+| `web/app.js` | Web UI wiring (controls, keyboard rendering, playback) |
+| `web/index.html` / `style.css` | Web interface |
+| `unity/` | Legacy Unity prototype with chords, arpeggios, MIDI integration, and multi-voice support |
 
 ## Roadmap
 
@@ -53,7 +53,7 @@ See [ROADMAP.md](./ROADMAP.md) for the detailed task list. High-level goals:
 
 The Unity prototype's sequencer grid (the web version uses an interactive piano keyboard):
 
-![Unity sequencer](Screenshot1.PNG)
+![Unity sequencer](https://raw.githubusercontent.com/chicomcastro/procedural-music-generator/master/unity/Screenshot1.PNG)
 
 ## License
 
