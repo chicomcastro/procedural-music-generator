@@ -1,54 +1,58 @@
 # Procedural Music Generator
-Development of a online sequencer with procedural generation of melodies
 
-This is a little tool that I'm developing for musical purposes.
+A tool for generating melodies procedurally using Perlin noise. Designed for infinite, adaptive music — especially suited for open-world games.
 
-It could be used to make infinite and adaptative music for games, mainly for open world games.
+## Quick start (web)
 
-There are two implementations in this repo:
+Open `index.html` in a modern browser. No build step or server required.
 
-- **Web prototype** (`index.html`, `app.js`, `melody.ts`/`melody.js`,
-  `style.css`) — open `index.html` in a modern browser. No build step
-  required; `melody.js` is the pre-compiled output of `melody.ts`.
-- **Unity prototype** (`Assets/`) — the original playground with
-  chords, arpeggios, live player and MIDI integration.
+The generator creates melodies from Perlin noise controlled by seed, octaves, lacunarity, and persistence. You can pick a scale (major, minor, pentatonic, blues, chromatic), set BPM, and hear the result instantly through the Web Audio API.
 
-## What happens next?
+## How it works
 
-See [ROADMAP.md](./ROADMAP.md) for the current task list. The original
-long-term goals are still valid:
+Perlin noise produces a smooth, deterministic curve from a given seed. That curve is mapped to pitch values and quantized to the chosen musical scale. Tweaking the noise parameters changes the character of the melody:
 
-- Procedural melody generation (OK!)
-- Multiple voices for melody (OK! — in the Unity build)
-- Adaptative, parametrical design (in dev)
-- Friendly user interface (in dev)
-- Harmony
-- Rhythm
-- Bass
-- MIDI output for download
-- Full documentation for use-as-asset purposes
+| Parameter | Effect |
+|---|---|
+| **Seed** | Determines the shape of the noise curve — same seed = same melody |
+| **Octaves** | Number of noise layers combined. More octaves = more detail |
+| **Lacunarity** | Frequency multiplier per octave. Higher = less smooth, more variation |
+| **Persistence** | Amplitude retention per octave (0–1). Lower = smoother, dominated by the base shape |
+| **Note range** | How many semitones the melody can span |
+| **Length** | Number of notes generated |
 
-## What's going on?
-I have used perlin noise for seed-based generation, for what you can modify atributes like octaves, persistance, lacunarity, and so on. Have fun! :)
+**Tips:** try two melodies with the same parameters but different seeds, or use lower BPM with few octaves for a calmer feel.
 
-### Tips
-Tips that I found nice:
+## Project structure
 
-1 - It's cool to combine two melodies with same atributes, but different seeds.
+| Path | Description |
+|---|---|
+| `melody.ts` | Core generator (Perlin noise + scale quantization) — source of truth |
+| `melody.js` | Compiled output of `melody.ts` (checked in until a build step is added) |
+| `app.js` | Web UI wiring (controls, keyboard rendering, playback) |
+| `index.html` / `style.css` | Web interface |
+| `Assets/` | Legacy Unity prototype with chords, arpeggios, MIDI integration, and multi-voice support |
 
-2 - For low sizes or octaves, it sounds more cool for me at lower bpm.
+## Roadmap
 
-### Little explanations
-**BPM**: Beats per minute or, basically, the velocity of the music.
+See [ROADMAP.md](./ROADMAP.md) for the detailed task list. High-level goals:
 
-**Dimensions**: here it doesn't have a clear meaning, but it affects how perlin noise generates the melody. It's associated with the dimensions of the noise and may affect melody's smoothness.
+- [x] Procedural melody generation
+- [x] Configurable scales and BPM
+- [x] Dynamic piano keyboard visualization
+- [ ] Rhythm and note duration control
+- [ ] Harmony and chord tracks
+- [ ] Bass line
+- [ ] Multiple simultaneous voices
+- [ ] MIDI file export
+- [ ] Adaptive/parametric design for game integration
 
-**Size**: The length of the music (press + to update notes' keyboard)
+## Screenshot
 
-**Seed**: it's the key to feed and save the status of the procedural generation
+The Unity prototype's sequencer grid (the web version uses an interactive piano keyboard):
 
-**Octave**: the number of interactions until the final result. It have greater effects combined with the properties bellow.
+![Unity sequencer](Screenshot1.PNG)
 
-**Lacunarity**: it's a kind of frequency multiple factor for each new octave. For higher values, less smooth will be the final result (with a more detailed shape).
+## License
 
-**Persistance**: it's a number between 0 and 1 associated with the maintence of the fundamental amplitude in each octave, that will naturally reduces (for less-than-1 values)
+[MIT](./LICENSE) — Francisco Matheus Moreira de Castro, 2017
