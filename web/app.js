@@ -115,6 +115,40 @@ let isPlaying = false;
 let progressRAF = null;
 let playbackStartRealTime = 0;
 let playbackTotalDuration = 0;
+let lastGeneratedSnapshot = null;
+
+function getCurrentSnapshot() {
+    return [
+        perlinParamsControls.length.value,
+        perlinParamsControls.seed.value,
+        perlinParamsControls.octaves.value,
+        perlinParamsControls.persistance.value,
+        perlinParamsControls.lacunarity.value,
+        perlinParamsControls.range.value,
+        melodyParamsControls.tone.value,
+        melodyParamsControls.octave.value,
+        melodyParamsControls.scale.value,
+    ].join('|');
+}
+
+function updateGenerateBtn() {
+    if (!generateMelodyBtn || isPlaying) return;
+    const changed = lastGeneratedSnapshot !== getCurrentSnapshot();
+    generateMelodyBtn.disabled = !changed;
+    generateMelodyBtn.title = changed ? '' : 'Change a parameter to generate a new melody';
+}
+
+// Listen for param changes
+const allParamInputs = [
+    perlinParamsControls.length, perlinParamsControls.seed,
+    perlinParamsControls.octaves, perlinParamsControls.persistance,
+    perlinParamsControls.lacunarity, perlinParamsControls.range,
+    melodyParamsControls.tone, melodyParamsControls.octave,
+    melodyParamsControls.scale, playbackParamsControls.bpm,
+];
+for (const el of allParamInputs) {
+    if (el) el.addEventListener('input', updateGenerateBtn);
+}
 
 // --- Player UI ---
 function formatTime(s) {
@@ -165,9 +199,9 @@ function setStoppedUI() {
     iconPlay.style.display = '';
     iconPause.style.display = 'none';
     playBtn.classList.remove('playing');
-    if (generateMelodyBtn) generateMelodyBtn.disabled = false;
     if (randomBtn) randomBtn.disabled = false;
     if (exportMidiBtn) exportMidiBtn.disabled = (!currentMelody || currentMelody.length === 0);
+    updateGenerateBtn();
 }
 
 // --- Audio ---
@@ -311,6 +345,8 @@ function doGenerate() {
         setStatus(`${notes} notes, ${rests} rests`, 'ok');
         if (exportMidiBtn) exportMidiBtn.disabled = false;
         updatePlayerTime();
+        lastGeneratedSnapshot = getCurrentSnapshot();
+        updateGenerateBtn();
         saveToHistory(pParams, mParams);
     } catch (error) {
         console.error("Error generating melody:", error);
@@ -403,6 +439,7 @@ function loadFromHistory(entry) {
     melodyParamsControls.octave.value = entry.melody.octave;
     melodyParamsControls.scale.value = entry.scale;
     playbackParamsControls.bpm.value = entry.bpm;
+    updateGenerateBtn();
     setStatus('Parameters loaded.', 'ok');
 }
 
