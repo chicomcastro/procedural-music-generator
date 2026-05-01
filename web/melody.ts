@@ -290,14 +290,14 @@ function generateMelody(
       noiseMap[i][NOTE] +
       currentMelodyParameters.octave * 12 +
       currentMelodyParameters.tone;
-    melody[i] = {
-      midi: quantizeToScale(
-        raw,
-        currentMelodyParameters.tone,
-        currentMelodyParameters.scale
-      ),
-      duration: noiseMap[i][PAUSE],
-    };
+    let midi = quantizeToScale(
+      raw,
+      currentMelodyParameters.tone,
+      currentMelodyParameters.scale
+    );
+    if (midi < 36) midi = 36 + ((midi - 36) % 12 + 12) % 12;
+    if (midi > 83) midi = 83 - ((midi - 83) % 12 + 12) % 12;
+    melody[i] = { midi, duration: noiseMap[i][PAUSE] };
   }
 
   return melody;

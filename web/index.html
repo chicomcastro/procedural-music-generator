@@ -7,85 +7,115 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Melody Generator</h1>
+    <header>
+        <h1>Melody Generator</h1>
+        <p class="subtitle">Procedural melodies powered by Perlin noise</p>
+    </header>
 
-    <div class="controls-container">
-        <h2>Parameters</h2>
-        <div id="perlin-params">
-            <h3>Perlin Noise Parameters</h3>
-            <div>
-                <label for="p-length">Length (number of notes):</label>
-                <input type="number" id="p-length" value="16" min="1" max="100">
+    <main>
+        <div class="actions-row">
+            <div class="actions-left">
+                <button id="generate-melody-btn" class="btn btn-primary">Generate</button>
+                <button id="random-btn" class="btn btn-secondary" title="Randomize all parameters">Shuffle</button>
             </div>
-            <div>
-                <label for="p-seed">Seed:</label>
-                <input type="number" id="p-seed" value="1">
-            </div>
-            <div>
-                <label for="p-octaves">Noise Octaves:</label>
-                <input type="number" id="p-octaves" value="3" min="1" max="8">
-            </div>
-            <div>
-                <label for="p-persistance">Noise Persistance (0-1):</label>
-                <input type="range" id="p-persistance" value="0.5" min="0.01" max="1" step="0.01">
-                <span id="p-persistance-val">0.5</span>
-            </div>
-            <div>
-                <label for="p-lacunarity">Noise Lacunarity:</label>
-                <input type="number" id="p-lacunarity" value="2.0" min="1" step="0.1">
-            </div>
-            <div>
-                <label for="p-range">Note Range (semitones):</label>
-                <input type="number" id="p-range" value="24" min="1" max="48">
-            </div>
-            <!-- width is used internally as 1 for melody lines, so no control for it yet -->
-        </div>
-        <div id="melody-params">
-            <h3>Melody Parameters</h3>
-            <div>
-                <label for="m-tone">Tone (offset, e.g., 0 for C):</label>
-                <input type="number" id="m-tone" value="0" min="-12" max="12">
-            </div>
-            <div>
-                <label for="m-octave">Base Octave:</label>
-                <input type="number" id="m-octave" value="4" min="2" max="5">
-            </div>
-            <div>
-                <label for="m-scale">Scale:</label>
-                <select id="m-scale">
-                    <option value="chromatic" selected>Chromatic</option>
-                    <option value="major">Major</option>
-                    <option value="minor">Natural Minor</option>
-                    <option value="pentatonic-major">Pentatonic Major</option>
-                    <option value="pentatonic-minor">Pentatonic Minor</option>
-                    <option value="blues">Blues</option>
-                </select>
+            <span id="status-message" class="status-message" aria-live="polite"></span>
+            <div class="actions-right">
+                <button id="export-midi-btn" class="btn btn-export">Export MIDI</button>
             </div>
         </div>
-        <div id="playback-params">
-            <h3>Playback Parameters</h3>
-            <div>
-                <label for="p-bpm">BPM:</label>
-                <input type="number" id="p-bpm" value="120" min="40" max="240">
-            </div>
-        </div>
-        <button id="generate-melody-btn">Generate Melody</button>
-        <div id="status-message" class="status-message" aria-live="polite"></div>
-    </div>
 
-    <div class="output-container">
-        <h2>Generated Melody</h2>
+        <div class="player">
+            <div class="player-controls">
+                <button id="play-btn" class="player-btn" title="Play">
+                    <svg id="icon-play" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+                    <svg id="icon-pause" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+                </button>
+                <button id="stop-btn" class="player-btn" title="Stop">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                </button>
+            </div>
+            <div class="player-track" id="player-track">
+                <div class="player-track-bg"></div>
+                <div class="player-track-fill" id="player-fill"></div>
+            </div>
+            <span class="player-time" id="player-time">0:00 / 0:00</span>
+        </div>
+
         <div id="piano-keyboard">
             <div class="piano" id="piano"></div>
         </div>
-        <div class="playback-buttons">
-            <button id="play-melody-btn">Play Melody</button>
-            <button id="stop-melody-btn">Stop</button>
-            <button id="export-midi-btn">Export MIDI</button>
-        </div>
-    </div>
 
-    <script src="melody.js"></script> <!-- Assuming melody.ts is compiled to melody.js -->
+        <div class="params-section">
+            <div class="params-row">
+                <div class="param-group">
+                    <label for="m-scale">Scale</label>
+                    <select id="m-scale">
+                        <option value="chromatic">Chromatic</option>
+                        <option value="major" selected>Major</option>
+                        <option value="minor">Natural Minor</option>
+                        <option value="pentatonic-major">Pentatonic Major</option>
+                        <option value="pentatonic-minor">Pentatonic Minor</option>
+                        <option value="blues">Blues</option>
+                    </select>
+                </div>
+                <div class="param-group">
+                    <label for="p-bpm">BPM</label>
+                    <input type="number" id="p-bpm" value="120" min="40" max="240">
+                </div>
+                <div class="param-group">
+                    <label for="p-seed">Seed</label>
+                    <input type="number" id="p-seed" value="1">
+                </div>
+                <div class="param-group">
+                    <label for="m-octave">Octave</label>
+                    <input type="number" id="m-octave" value="4" min="2" max="5">
+                </div>
+                <div class="param-group">
+                    <label for="p-length">Notes</label>
+                    <input type="number" id="p-length" value="16" min="1" max="100">
+                </div>
+            </div>
+            <details class="advanced-params">
+                <summary>Advanced parameters</summary>
+                <div class="params-row">
+                    <div class="param-group">
+                        <label for="m-tone">Tone offset</label>
+                        <input type="number" id="m-tone" value="0" min="-12" max="12">
+                    </div>
+                    <div class="param-group">
+                        <label for="p-range">Range (semitones)</label>
+                        <input type="number" id="p-range" value="24" min="1" max="48">
+                    </div>
+                    <div class="param-group">
+                        <label for="p-octaves">Noise octaves</label>
+                        <input type="number" id="p-octaves" value="3" min="1" max="8">
+                    </div>
+                    <div class="param-group">
+                        <label for="p-persistance">Persistence</label>
+                        <div class="range-group">
+                            <input type="range" id="p-persistance" value="0.5" min="0.01" max="1" step="0.01">
+                            <span id="p-persistance-val">0.5</span>
+                        </div>
+                    </div>
+                    <div class="param-group">
+                        <label for="p-lacunarity">Lacunarity</label>
+                        <input type="number" id="p-lacunarity" value="2.0" min="1" step="0.1">
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="history-section" id="history-section">
+            <div class="history-header">
+                <h2>History</h2>
+                <button id="clear-history-btn" class="btn btn-ghost">Clear all</button>
+            </div>
+            <div id="history-list" class="history-list"></div>
+            <p id="history-empty" class="history-empty">No melodies generated yet.</p>
+        </div>
+    </main>
+
+    <script src="melody.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
