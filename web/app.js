@@ -15,6 +15,12 @@ const melodyParamsControls = {
 };
 const playbackParamsControls = { bpm: document.getElementById('p-bpm') };
 
+// History
+const HISTORY_KEY = 'melody-generator-history';
+const historyList = document.getElementById('history-list');
+const historyEmpty = document.getElementById('history-empty');
+const clearHistoryBtn = document.getElementById('clear-history-btn');
+
 const generateMelodyBtn = document.getElementById('generate-melody-btn');
 const randomBtn = document.getElementById('random-btn');
 const exportMidiBtn = document.getElementById('export-midi-btn');
@@ -361,11 +367,6 @@ exportMidiBtn.addEventListener('click', () => {
 });
 
 // --- History ---
-const HISTORY_KEY = 'melody-generator-history';
-const historyList = document.getElementById('history-list');
-const historyEmpty = document.getElementById('history-empty');
-const clearHistoryBtn = document.getElementById('clear-history-btn');
-
 function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
 function persistHistory(h) { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); }
 
