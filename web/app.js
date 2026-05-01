@@ -22,6 +22,8 @@ const playbackParamsControls = {
 // Buttons and status
 const generateMelodyBtn = document.getElementById('generate-melody-btn');
 const playMelodyBtn = document.getElementById('play-melody-btn');
+const stopMelodyBtn = document.getElementById('stop-melody-btn');
+const exportMidiBtn = document.getElementById('export-midi-btn');
 const statusMessage = document.getElementById('status-message');
 
 function setStatus(text, kind) {
@@ -30,9 +32,9 @@ function setStatus(text, kind) {
     statusMessage.className = 'status-message' + (kind ? ' status-' + kind : '');
 }
 
-if (playMelodyBtn) {
-    playMelodyBtn.disabled = true;
-}
+if (playMelodyBtn) playMelodyBtn.disabled = true;
+if (stopMelodyBtn) stopMelodyBtn.disabled = true;
+if (exportMidiBtn) exportMidiBtn.disabled = true;
 
 if (perlinParamsControls.persistance && perlinParamsControls.persistanceVal) {
     perlinParamsControls.persistance.addEventListener('input', () => {
@@ -116,8 +118,13 @@ function getBpm() {
     return raw;
 }
 
-let currentMelody = [];
+// State
+let currentMelody = []; // NoteEvent[]
+let scheduledOscillators = [];
+let scheduledTimeouts = [];
+let isPlaying = false;
 
+// --- Generate ---
 if (generateMelodyBtn) {
     generateMelodyBtn.addEventListener('click', () => {
         const pParams = getPerlinParameters();
@@ -126,25 +133,29 @@ if (generateMelodyBtn) {
         if (typeof generateMelody === 'function') {
             try {
                 currentMelody = generateMelody(pParams, mParams);
-                setStatus(`Melody generated with ${currentMelody.length} notes.`, 'ok');
-                if (playMelodyBtn) {
-                    playMelodyBtn.disabled = (!currentMelody || currentMelody.length === 0);
-                }
+                const noteCount = currentMelody.filter(e => e.duration > 0).length;
+                const restCount = currentMelody.length - noteCount;
+                setStatus(`Melody generated: ${noteCount} notes, ${restCount} rests.`, 'ok');
+                if (playMelodyBtn) playMelodyBtn.disabled = (!currentMelody || currentMelody.length === 0);
+                if (exportMidiBtn) exportMidiBtn.disabled = (!currentMelody || currentMelody.length === 0);
             } catch (error) {
                 console.error("Error generating melody:", error);
                 setStatus('Error generating melody. Check console.', 'error');
                 currentMelody = [];
                 if (playMelodyBtn) playMelodyBtn.disabled = true;
+                if (exportMidiBtn) exportMidiBtn.disabled = true;
             }
         } else {
             console.error("generateMelody function not found.");
             setStatus('Melody generation script not loaded correctly.', 'error');
             currentMelody = [];
             if (playMelodyBtn) playMelodyBtn.disabled = true;
+            if (exportMidiBtn) exportMidiBtn.disabled = true;
         }
     });
 }
 
+// --- Audio ---
 let audioContext;
 
 function initAudioContext() {
@@ -180,18 +191,42 @@ function playNote(midiNoteNumber, startTime, duration) {
     oscillator.start(startTime);
     oscillator.stop(startTime + duration + 0.1);
 
+    scheduledOscillators.push(oscillator);
+
     const keyId = noteToKeyId[midiNoteNumber];
     if (keyId) {
         const keyElement = document.getElementById(keyId);
         if (keyElement) {
             const nowOffset = Math.max(0, (startTime - audioContext.currentTime) * 1000);
             const endOffset = Math.max(0, (startTime - audioContext.currentTime + duration) * 1000);
-            setTimeout(() => keyElement.classList.add('active'), nowOffset);
-            setTimeout(() => keyElement.classList.remove('active'), endOffset);
+            const tOn = setTimeout(() => keyElement.classList.add('active'), nowOffset);
+            const tOff = setTimeout(() => keyElement.classList.remove('active'), endOffset);
+            scheduledTimeouts.push(tOn, tOff);
         }
     }
 }
 
+function stopPlayback() {
+    for (const osc of scheduledOscillators) {
+        try { osc.stop(0); } catch (_) {}
+    }
+    scheduledOscillators = [];
+
+    for (const t of scheduledTimeouts) {
+        clearTimeout(t);
+    }
+    scheduledTimeouts = [];
+
+    document.querySelectorAll('.key.active').forEach(el => el.classList.remove('active'));
+
+    isPlaying = false;
+    if (playMelodyBtn) playMelodyBtn.disabled = false;
+    if (generateMelodyBtn) generateMelodyBtn.disabled = false;
+    if (stopMelodyBtn) stopMelodyBtn.disabled = true;
+    if (exportMidiBtn) exportMidiBtn.disabled = (!currentMelody || currentMelody.length === 0);
+}
+
+// --- Play ---
 if (playMelodyBtn) {
     playMelodyBtn.addEventListener('click', () => {
         initAudioContext();
@@ -204,23 +239,153 @@ if (playMelodyBtn) {
             return;
         }
 
-        const noteDuration = 60 / getBpm();
+        const beatDuration = 60 / getBpm();
+        isPlaying = true;
         playMelodyBtn.disabled = true;
         if (generateMelodyBtn) generateMelodyBtn.disabled = true;
+        if (stopMelodyBtn) stopMelodyBtn.disabled = false;
+        if (exportMidiBtn) exportMidiBtn.disabled = true;
         setStatus('Playing…', 'ok');
 
+        scheduledOscillators = [];
+        scheduledTimeouts = [];
+
         const melodyStartTime = audioContext.currentTime + 0.1;
+        let cursor = 0;
+
         for (let i = 0; i < currentMelody.length; i++) {
-            const midiNote = currentMelody[i];
-            const noteStartTime = melodyStartTime + i * noteDuration;
-            playNote(midiNote, noteStartTime, noteDuration);
+            const event = currentMelody[i];
+            const dur = event.duration === 0 ? 1 : event.duration;
+            const eventDuration = dur * beatDuration;
+
+            if (event.duration > 0) {
+                playNote(event.midi, melodyStartTime + cursor, eventDuration);
+            }
+
+            cursor += eventDuration;
         }
 
-        const totalMelodyDuration = currentMelody.length * noteDuration;
-        setTimeout(() => {
-            playMelodyBtn.disabled = false;
-            if (generateMelodyBtn) generateMelodyBtn.disabled = false;
-            setStatus('Playback finished.', 'ok');
-        }, (totalMelodyDuration + 0.5) * 1000);
+        const endTimeout = setTimeout(() => {
+            if (isPlaying) {
+                stopPlayback();
+                setStatus('Playback finished.', 'ok');
+            }
+        }, (cursor + 0.5) * 1000);
+        scheduledTimeouts.push(endTimeout);
+    });
+}
+
+// --- Stop ---
+if (stopMelodyBtn) {
+    stopMelodyBtn.addEventListener('click', () => {
+        stopPlayback();
+        setStatus('Playback stopped.', 'ok');
+    });
+}
+
+// --- MIDI Export ---
+function generateMidiFile(noteEvents, bpm) {
+    const TICKS_PER_QUARTER = 480;
+
+    function writeVLQ(value) {
+        const bytes = [];
+        bytes.push(value & 0x7F);
+        value >>= 7;
+        while (value > 0) {
+            bytes.push((value & 0x7F) | 0x80);
+            value >>= 7;
+        }
+        bytes.reverse();
+        return bytes;
+    }
+
+    function writeUint16(arr, value) {
+        arr.push((value >> 8) & 0xFF, value & 0xFF);
+    }
+
+    function writeUint32(arr, value) {
+        arr.push((value >> 24) & 0xFF, (value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF);
+    }
+
+    function writeString(arr, str) {
+        for (let i = 0; i < str.length; i++) arr.push(str.charCodeAt(i));
+    }
+
+    // Build track data
+    const track = [];
+
+    // Tempo meta event (delta=0): FF 51 03 tttttt
+    const microsecondsPerBeat = Math.round(60000000 / bpm);
+    track.push(0x00); // delta time
+    track.push(0xFF, 0x51, 0x03);
+    track.push((microsecondsPerBeat >> 16) & 0xFF);
+    track.push((microsecondsPerBeat >> 8) & 0xFF);
+    track.push(microsecondsPerBeat & 0xFF);
+
+    // Note events
+    const CHANNEL = 0;
+    const VELOCITY = 100;
+
+    for (const event of noteEvents) {
+        const dur = event.duration === 0 ? 1 : event.duration;
+        const ticks = dur * TICKS_PER_QUARTER;
+
+        if (event.duration === 0) {
+            // Rest: just advance time
+            track.push(...writeVLQ(ticks));
+            // Write a dummy meta event to carry the delta
+            track.push(0xFF, 0x06, 0x00); // marker with empty text
+            continue;
+        }
+
+        // Note On (delta=0 relative to previous event end)
+        track.push(...writeVLQ(0));
+        track.push(0x90 | CHANNEL, event.midi, VELOCITY);
+
+        // Note Off after duration ticks
+        track.push(...writeVLQ(ticks));
+        track.push(0x80 | CHANNEL, event.midi, 0);
+    }
+
+    // End of track
+    track.push(0x00, 0xFF, 0x2F, 0x00);
+
+    // Assemble file
+    const file = [];
+
+    // Header: MThd
+    writeString(file, 'MThd');
+    writeUint32(file, 6);       // chunk length
+    writeUint16(file, 0);       // format 0
+    writeUint16(file, 1);       // 1 track
+    writeUint16(file, TICKS_PER_QUARTER);
+
+    // Track: MTrk
+    writeString(file, 'MTrk');
+    writeUint32(file, track.length);
+    file.push(...track);
+
+    return new Uint8Array(file);
+}
+
+if (exportMidiBtn) {
+    exportMidiBtn.addEventListener('click', () => {
+        if (!currentMelody || currentMelody.length === 0) {
+            setStatus('No melody to export.', 'warn');
+            return;
+        }
+
+        const midiData = generateMidiFile(currentMelody, getBpm());
+        const blob = new Blob([midiData], { type: 'audio/midi' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const seed = parseInt(perlinParamsControls.seed.value) || 0;
+        a.href = url;
+        a.download = `melody-seed${seed}.mid`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus('MIDI file exported.', 'ok');
     });
 }

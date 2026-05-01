@@ -94,8 +94,28 @@ button:hover {
 }
 
 button:disabled {
-    background-color: #bdc3c7; /* Grey out disabled buttons */
+    background-color: #bdc3c7;
     cursor: not-allowed;
+}
+
+.playback-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#stop-melody-btn {
+    background-color: #e74c3c;
+}
+#stop-melody-btn:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+#export-midi-btn {
+    background-color: #27ae60;
+}
+#export-midi-btn:hover:not(:disabled) {
+    background-color: #1e8449;
 }
 
 #piano-keyboard {

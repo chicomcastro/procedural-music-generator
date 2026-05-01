@@ -3,6 +3,11 @@
 declare var require: any;
 declare var module: any;
 
+interface NoteEvent {
+  midi: number;
+  duration: number; // 0 = rest, 1 = quarter, 2 = half, 3 = dotted half, 4 = whole
+}
+
 interface MelodyParameters {
   tone: number;
   octave: number;
@@ -179,31 +184,33 @@ function generateHeights(
   let maxNoiseHeight = -Infinity;
   let minNoiseHeight = Infinity;
 
+  let maxPauseHeight = -Infinity;
+  let minPauseHeight = Infinity;
+
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < length; y++) {
       let amplitude = 1;
       let frequency = 1;
       let noiseHeight = 0;
+      let pauseHeight = 0;
 
       for (let i = 0; i < octaves; i++) {
         const sampleX = (x / noiseScale) * frequency + octaveOffsets[i].x;
         const sampleY = (y / noiseScale) * frequency + octaveOffsets[i].y;
-        const perlinValue = perlinNoiseGenerator.noise(sampleX, sampleY);
-        noiseHeight += perlinValue * amplitude;
+        noiseHeight += perlinNoiseGenerator.noise(sampleX, sampleY) * amplitude;
+        pauseHeight += perlinNoiseGenerator.noise(sampleX + 1000, sampleY + 1000) * amplitude;
         amplitude *= persistance;
         frequency *= lacunarity;
       }
 
-      if (noiseHeight > maxNoiseHeight) {
-        maxNoiseHeight = noiseHeight;
-      }
-      if (noiseHeight < minNoiseHeight) {
-        minNoiseHeight = noiseHeight;
-      }
+      if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+      if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
+      if (pauseHeight > maxPauseHeight) maxPauseHeight = pauseHeight;
+      if (pauseHeight < minPauseHeight) minPauseHeight = pauseHeight;
 
       const index = length * x + y;
       heights[index][NOTE] = noiseHeight;
-      heights[index][PAUSE] = noiseHeight;
+      heights[index][PAUSE] = pauseHeight;
     }
   }
 
@@ -211,7 +218,7 @@ function generateHeights(
     const normalizedNote = inverseLerp(minNoiseHeight, maxNoiseHeight, heights[i][NOTE]);
     result[i][NOTE] = roundToInt(normalizedNote * range);
 
-    const normalizedPause = inverseLerp(minNoiseHeight, maxNoiseHeight, heights[i][PAUSE]);
+    const normalizedPause = inverseLerp(minPauseHeight, maxPauseHeight, heights[i][PAUSE]);
     result[i][PAUSE] = roundToInt(normalizedPause * 4);
   }
 
@@ -244,7 +251,7 @@ function quantizeToScale(
 function generateMelody(
   perlinParameters: PerlinParameters,
   melodyParameters?: MelodyParameters
-): number[] {
+): NoteEvent[] {
   const currentMelodyParameters: MelodyParameters = melodyParameters ?? {
     tone: 0,
     octave: 2,
@@ -276,18 +283,21 @@ function generateMelody(
     offset
   );
 
-  const melody: number[] = new Array(noiseMap.length);
+  const melody: NoteEvent[] = new Array(noiseMap.length);
 
   for (let i = 0; i < melody.length; i++) {
     const raw =
       noiseMap[i][NOTE] +
       currentMelodyParameters.octave * 12 +
       currentMelodyParameters.tone;
-    melody[i] = quantizeToScale(
-      raw,
-      currentMelodyParameters.tone,
-      currentMelodyParameters.scale
-    );
+    melody[i] = {
+      midi: quantizeToScale(
+        raw,
+        currentMelodyParameters.tone,
+        currentMelodyParameters.scale
+      ),
+      duration: noiseMap[i][PAUSE],
+    };
   }
 
   return melody;
@@ -318,7 +328,7 @@ if (typeof require !== 'undefined' && require.main === module) {
   console.log("Test MelodyParameters:", testMelodyParams);
 
   const melodyOutput = generateMelody(testPerlinParams, testMelodyParams);
-  console.log("Generated Melody (notes):", melodyOutput);
+  console.log("Generated Melody (NoteEvents):", melodyOutput);
   console.log(`Generated Melody Length: ${melodyOutput.length} (should match PerlinParameters.length * PerlinParameters.width)`);
 
 

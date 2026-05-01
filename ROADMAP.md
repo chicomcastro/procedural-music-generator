@@ -15,18 +15,19 @@ Tasks are grouped by horizon and roughly ordered by value / effort.
   major/minor, blues. Notes are quantized to the nearest scale degree
   based on the configured tonic (`tone`).
 - Inline status messages replace the blocking `alert()` popups.
+- **Rhythm / pauses**: the PAUSE track from Perlin noise is now
+  decorrelated from pitch and mapped to note durations (rest, quarter,
+  half, dotted half, whole).
+- **Stop playback button**: cancels all scheduled oscillators and
+  keyboard highlights on click.
+- **MIDI export**: download the generated melody as a `.mid` file
+  (SMF Format 0) with proper tempo and rhythm.
 
 ## Near term (next)
 
-- [ ] **Rhythm / pauses**: the noise map already generates a `PAUSE`
-      track (`melody.js:147`); expose a control to translate it into
-      note durations or rests instead of discarding it.
 - [ ] **Note-length control**: expose "note value" (whole / half /
       quarter / eighth) alongside BPM so tempo and subdivision are
       independent.
-- [ ] **Stop playback button**: currently playback can only be aborted
-      by reloading. Maintain an array of scheduled oscillators and
-      cancel on click.
 - [ ] **Copy / share URL**: serialize current parameters into
       `location.hash` so a seed + settings combo is shareable.
 - [ ] **Waveform selector**: sine only today — add square, sawtooth,
@@ -37,7 +38,7 @@ Tasks are grouped by horizon and roughly ordered by value / effort.
 ## Medium term
 
 - [ ] **Harmony track**: port `Chord` / `ChordDictionary` / `Arpeggio`
-      from `Assets/Scripts/` to TS and play chords under the melody.
+      from `unity/Assets/Scripts/` to TS and play chords under the melody.
 - [ ] **Bass line**: secondary voice with its own seed and lower
       octave, following the harmony.
 - [ ] **Multiple voices**: generalize the generator to produce N voices
@@ -45,8 +46,6 @@ Tasks are grouped by horizon and roughly ordered by value / effort.
       supports "multiple voices for melody").
 - [ ] **Preset library**: save / load named parameter sets in
       `localStorage`.
-- [ ] **MIDI export**: download the generated melody as a `.mid` file
-      (roadmap item from the original README).
 
 ## Long term
 

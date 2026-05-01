@@ -42,11 +42,13 @@ See [ROADMAP.md](./ROADMAP.md) for the detailed task list. High-level goals:
 - [x] Procedural melody generation
 - [x] Configurable scales and BPM
 - [x] Dynamic piano keyboard visualization
-- [ ] Rhythm and note duration control
+- [x] Rhythm and rests (Perlin noise PAUSE track)
+- [x] Stop playback button
+- [x] MIDI file export
+- [ ] Note-length control (subdivision independent of BPM)
 - [ ] Harmony and chord tracks
 - [ ] Bass line
 - [ ] Multiple simultaneous voices
-- [ ] MIDI file export
 - [ ] Adaptive/parametric design for game integration
 
 ## Screenshot
