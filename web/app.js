@@ -226,8 +226,8 @@ function stopPlayback(resetProgress) {
 function startPlayback() {
     initAudioContext();
     if (!currentMelody || currentMelody.length === 0) {
-        setStatus("Generate a melody first.", 'warn');
-        return;
+        doGenerate();
+        if (!currentMelody || currentMelody.length === 0) return;
     }
 
     const beatDuration = 60 / getBpm();
