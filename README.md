@@ -57,9 +57,13 @@ See [ROADMAP.md](./ROADMAP.md) for the detailed task list. High-level goals:
 - [ ] Multiple simultaneous voices
 - [ ] Adaptive/parametric design for game integration
 
-## Screenshot
+## Screenshots
 
-The Unity prototype's sequencer grid (the web version uses an interactive piano keyboard):
+### Web app
+
+![Web melody generator](web/screenshot.png)
+
+### Unity prototype (legacy)
 
 ![Unity sequencer](https://raw.githubusercontent.com/chicomcastro/procedural-music-generator/master/unity/Screenshot1.PNG)
 
