@@ -50,6 +50,7 @@ const SCALES = {
     'pentatonic-major': [0,2,4,7,9], 'pentatonic-minor': [0,3,5,7,10], 'blues': [0,3,5,6,7,10]
 };
 const SCALE_KEYS = Object.keys(SCALES);
+const SCALE_LABELS = {'chromatic':'Chromatic','major':'Major','minor':'Minor','pentatonic-major':'Pent. Maj','pentatonic-minor':'Pent. Min','blues':'Blues'};
 
 // Piano
 const PIANO_START_MIDI = 36;
@@ -410,8 +411,6 @@ function fmtDate(iso) {
     const p = n => String(n).padStart(2,'0');
     return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
-const SCALE_LABELS = {'chromatic':'Chromatic','major':'Major','minor':'Minor','pentatonic-major':'Pent. Maj','pentatonic-minor':'Pent. Min','blues':'Blues'};
-
 function renderHistory() {
     const history = loadHistory();
     if (!historyList) return;
