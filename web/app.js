@@ -112,9 +112,11 @@ let currentMelody = [];
 let scheduledOscillators = [];
 let scheduledTimeouts = [];
 let isPlaying = false;
+let isPaused = false;
 let progressRAF = null;
 let playbackStartRealTime = 0;
 let playbackTotalDuration = 0;
+let pausedElapsed = 0;
 let lastGeneratedSnapshot = null;
 
 function getCurrentSnapshot() {
@@ -172,8 +174,8 @@ function updatePlayerTime() {
 }
 
 function tickProgress() {
-    if (!isPlaying) return;
-    const elapsed = (performance.now() - playbackStartRealTime) / 1000;
+    if (!isPlaying || isPaused) return;
+    const elapsed = pausedElapsed + (performance.now() - playbackStartRealTime) / 1000;
     const pct = Math.min(elapsed / playbackTotalDuration, 1);
     playerFill.style.width = (pct * 100) + '%';
     playerTime.textContent = formatTime(elapsed) + ' / ' + formatTime(playbackTotalDuration);
@@ -184,6 +186,7 @@ function tickProgress() {
 
 function setPlayingUI() {
     isPlaying = true;
+    isPaused = false;
     iconPlay.style.display = 'none';
     iconPause.style.display = '';
     playBtn.classList.add('playing');
@@ -192,8 +195,17 @@ function setPlayingUI() {
     if (exportMidiBtn) exportMidiBtn.disabled = true;
 }
 
+function setPausedUI() {
+    isPaused = true;
+    iconPlay.style.display = '';
+    iconPause.style.display = 'none';
+    playBtn.classList.remove('playing');
+}
+
 function setStoppedUI() {
     isPlaying = false;
+    isPaused = false;
+    pausedElapsed = 0;
     if (progressRAF) cancelAnimationFrame(progressRAF);
     progressRAF = null;
     iconPlay.style.display = '';
@@ -281,11 +293,12 @@ function startPlayback() {
     }
 
     playbackTotalDuration = cursor;
+    pausedElapsed = 0;
     playbackStartRealTime = performance.now() + 100;
     progressRAF = requestAnimationFrame(tickProgress);
 
     scheduledTimeouts.push(setTimeout(() => {
-        if (isPlaying) {
+        if (isPlaying && !isPaused) {
             stopPlayback(false);
             playerFill.style.width = '100%';
             playerTime.textContent = formatTime(playbackTotalDuration) + ' / ' + formatTime(playbackTotalDuration);
@@ -295,16 +308,40 @@ function startPlayback() {
 }
 
 // --- Player buttons ---
+function pausePlayback() {
+    if (!isPlaying || isPaused || !audioContext) return;
+    pausedElapsed += (performance.now() - playbackStartRealTime) / 1000;
+    audioContext.suspend();
+    if (progressRAF) cancelAnimationFrame(progressRAF);
+    progressRAF = null;
+    // Pause timeouts by clearing and noting we're paused (they resume via audioContext)
+    setPausedUI();
+    setStatus('Paused.', 'ok');
+}
+
+function resumePlayback() {
+    if (!isPlaying || !isPaused || !audioContext) return;
+    audioContext.resume();
+    isPaused = false;
+    playbackStartRealTime = performance.now();
+    progressRAF = requestAnimationFrame(tickProgress);
+    setPlayingUI();
+    setStatus('Playing...', 'ok');
+}
+
 playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-        stopPlayback(true);
-        setStatus('Stopped.', 'ok');
+    if (isPlaying && !isPaused) {
+        pausePlayback();
+    } else if (isPlaying && isPaused) {
+        resumePlayback();
     } else {
         startPlayback();
     }
 });
 
 stopBtn.addEventListener('click', () => {
+    if (!isPlaying) return;
+    if (isPaused && audioContext) audioContext.resume();
     stopPlayback(true);
     setStatus('Stopped.', 'ok');
 });
