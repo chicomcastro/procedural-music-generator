@@ -200,9 +200,15 @@ main {
 @media (max-width: 600px) {
     .params-row { flex-direction: column; }
     .param-group { min-width: 100%; }
-    .actions-row { flex-direction: column; align-items: stretch; }
-    .actions-left, .actions-right { justify-content: center; }
+    .actions-row {
+        flex-direction: row; flex-wrap: wrap; justify-content: center;
+    }
+    .actions-left, .actions-right { flex-shrink: 0; }
+    .actions-left { order: 1; }
+    .actions-right { order: 2; }
+    .status-message { order: 3; width: 100%; text-align: center; }
+    .btn { padding: 10px 16px; font-size: 0.85em; }
     .player { flex-wrap: wrap; }
-    .status-message { width: 100%; text-align: center; }
-    .piano { transform: scale(0.75); transform-origin: center; }
+    .player-time { font-size: 0.72em; min-width: 70px; }
+    .piano { transform: scale(0.7); transform-origin: center; }
 }
