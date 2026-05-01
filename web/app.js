@@ -114,10 +114,13 @@ let scheduledTimeouts = [];
 let isPlaying = false;
 let isPaused = false;
 let progressRAF = null;
+let highlightRAF = null;
 let playbackStartRealTime = 0;
 let playbackTotalDuration = 0;
 let pausedElapsed = 0;
 let lastGeneratedSnapshot = null;
+let keyEvents = []; // {midi, startCtx, endCtx} scheduled relative to audioContext.currentTime
+let melodyStartCtx = 0; // audioContext.currentTime when playback started
 
 function getCurrentSnapshot() {
     return [
@@ -175,10 +178,10 @@ function updatePlayerTime() {
 
 function tickProgress() {
     if (!isPlaying || isPaused) return;
-    const elapsed = pausedElapsed + (performance.now() - playbackStartRealTime) / 1000;
-    const pct = Math.min(elapsed / playbackTotalDuration, 1);
+    const elapsed = audioContext ? audioContext.currentTime - melodyStartCtx : 0;
+    const pct = Math.min(Math.max(elapsed / playbackTotalDuration, 0), 1);
     playerFill.style.width = (pct * 100) + '%';
-    playerTime.textContent = formatTime(elapsed) + ' / ' + formatTime(playbackTotalDuration);
+    playerTime.textContent = formatTime(Math.max(elapsed, 0)) + ' / ' + formatTime(playbackTotalDuration);
     if (pct < 1) {
         progressRAF = requestAnimationFrame(tickProgress);
     }
@@ -246,16 +249,33 @@ function playNote(midiNoteNumber, startTime, duration) {
     osc.stop(startTime + duration + 0.1);
     scheduledOscillators.push(osc);
 
-    const keyId = noteToKeyId[midiNoteNumber];
-    if (keyId) {
-        const el = document.getElementById(keyId);
-        if (el) {
-            const nowOff = Math.max(0, (startTime - audioContext.currentTime) * 1000);
-            const endOff = Math.max(0, (startTime - audioContext.currentTime + duration) * 1000);
-            scheduledTimeouts.push(setTimeout(() => el.classList.add('active'), nowOff));
-            scheduledTimeouts.push(setTimeout(() => el.classList.remove('active'), endOff));
+    keyEvents.push({ midi: midiNoteNumber, startCtx: startTime, endCtx: startTime + duration });
+}
+
+function tickHighlights() {
+    if (!isPlaying) return;
+    if (!isPaused && audioContext) {
+        const now = audioContext.currentTime;
+        for (const ev of keyEvents) {
+            const keyId = noteToKeyId[ev.midi];
+            if (!keyId) continue;
+            const el = document.getElementById(keyId);
+            if (!el) continue;
+            if (now >= ev.startCtx && now < ev.endCtx) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        }
+        if (now >= melodyStartCtx + playbackTotalDuration + 0.3) {
+            stopPlayback(false);
+            playerFill.style.width = '100%';
+            playerTime.textContent = formatTime(playbackTotalDuration) + ' / ' + formatTime(playbackTotalDuration);
+            setStatus('Playback finished.', 'ok');
+            return;
         }
     }
+    highlightRAF = requestAnimationFrame(tickHighlights);
 }
 
 function stopPlayback(resetProgress) {
@@ -263,6 +283,9 @@ function stopPlayback(resetProgress) {
     scheduledOscillators = [];
     for (const t of scheduledTimeouts) clearTimeout(t);
     scheduledTimeouts = [];
+    keyEvents = [];
+    if (highlightRAF) cancelAnimationFrame(highlightRAF);
+    highlightRAF = null;
     document.querySelectorAll('.key.active').forEach(el => el.classList.remove('active'));
     setStoppedUI();
     if (resetProgress) {
@@ -282,6 +305,7 @@ function startPlayback() {
     setStatus('Playing...', 'ok');
     scheduledOscillators = [];
     scheduledTimeouts = [];
+    keyEvents = [];
 
     const melodyStart = audioContext.currentTime + 0.1;
     let cursor = 0;
@@ -293,28 +317,21 @@ function startPlayback() {
     }
 
     playbackTotalDuration = cursor;
+    melodyStartCtx = melodyStart;
     pausedElapsed = 0;
     playbackStartRealTime = performance.now() + 100;
     progressRAF = requestAnimationFrame(tickProgress);
+    highlightRAF = requestAnimationFrame(tickHighlights);
 
-    scheduledTimeouts.push(setTimeout(() => {
-        if (isPlaying && !isPaused) {
-            stopPlayback(false);
-            playerFill.style.width = '100%';
-            playerTime.textContent = formatTime(playbackTotalDuration) + ' / ' + formatTime(playbackTotalDuration);
-            setStatus('Playback finished.', 'ok');
-        }
-    }, (cursor + 0.5) * 1000));
+    // End-of-playback is detected in tickHighlights via audioContext.currentTime
 }
 
 // --- Player buttons ---
 function pausePlayback() {
     if (!isPlaying || isPaused || !audioContext) return;
-    pausedElapsed += (performance.now() - playbackStartRealTime) / 1000;
     audioContext.suspend();
     if (progressRAF) cancelAnimationFrame(progressRAF);
     progressRAF = null;
-    // Pause timeouts by clearing and noting we're paused (they resume via audioContext)
     setPausedUI();
     setStatus('Paused.', 'ok');
 }
@@ -323,8 +340,8 @@ function resumePlayback() {
     if (!isPlaying || !isPaused || !audioContext) return;
     audioContext.resume();
     isPaused = false;
-    playbackStartRealTime = performance.now();
     progressRAF = requestAnimationFrame(tickProgress);
+    highlightRAF = requestAnimationFrame(tickHighlights);
     setPlayingUI();
     setStatus('Playing...', 'ok');
 }
