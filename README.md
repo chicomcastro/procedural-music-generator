@@ -2,9 +2,11 @@
 
 A tool for generating melodies procedurally using Perlin noise. Designed for infinite, adaptive music — especially suited for open-world games.
 
+**[Try the web demo](https://chicomcastro.github.io/procedural-music-generator/)** · **[Unity prototype on itch.io](https://chicomcastro.itch.io/music-maker)**
+
 ## Quick start (web)
 
-Open `index.html` in a modern browser. No build step or server required.
+Open `index.html` in a modern browser (or use the [live demo](https://chicomcastro.github.io/procedural-music-generator/)). No build step or server required.
 
 The generator creates melodies from Perlin noise controlled by seed, octaves, lacunarity, and persistence. You can pick a scale (major, minor, pentatonic, blues, chromatic), set BPM, and hear the result instantly through the Web Audio API.
 
